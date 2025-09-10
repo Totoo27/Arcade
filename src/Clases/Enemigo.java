@@ -2,76 +2,32 @@ package Clases;
 
 import java.awt.Graphics;
 import java.awt.Rectangle;
-import java.lang.Math;
 
-public class Enemigo {
-	
-	public int x;
-	public int y;
+public abstract class Enemigo {
+    protected int x;
+    protected int y;
+    protected int width;
+    protected int height;
+    protected int vida;
 
-	public int height = 80;
-	public int width = 40;
+    public Enemigo(int x, int y, int width, int height, int vida) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.vida = vida;
+     
+    }
 
-	private int velocidadX = 3;
-	public int velocidadY;
-	private boolean TocandoPiso = false;
+    public abstract void movimiento(int panelHeight, int gravedad);
 
-	private Player jugador;
-	
-	public int vida = 3;
-	public int monedas = 3;
-	
-	public Enemigo (int x, int y, Player jugador) { // Constructor con los objetos de esta clase.
-		
-		this.x = x;
-		this.y = y;
-		this.jugador = jugador;
-		
-	}
-	
-	public void movimiento(int panelHeight, int gravedad){
-		
-		// Vel en X
-		if(jugador.x < x) {
-			x -= velocidadX;
-		}else if (jugador.x > x) {	
-			x += velocidadX;
-		}
-	
-		// Física de gravedad
-		if(y + height >= panelHeight) {
-			velocidadY = 0;
-			y = panelHeight - height;
-			TocandoPiso = true;
-		} else {
-			velocidadY += gravedad;
-    	 	TocandoPiso = false;
-		}
+    public void recibirGolpe() {
+        vida--;
+    }
 
-		y += velocidadY;
-		
-		// Sacar módulo de la distancia con el jug
-		int distancia = Math.abs(x - jugador.x);
-    
-		if(distancia < 200 && TocandoPiso) {
-    	
-			if(jugador.y + jugador.height < y) {
-				velocidadY = -15;
-			}
-
-			y += velocidadY;
-	
-		}
-		
-	}
-	
-	// Recibir Golpe
-	public void recibirGolpe() {
-		vida--;
-	}
-	
-	public Rectangle getBounds() {
+    public Rectangle getBounds() {
         return new Rectangle(x, y, width, height);
     }
 
+    public abstract void dibujar(Graphics g);
 }
