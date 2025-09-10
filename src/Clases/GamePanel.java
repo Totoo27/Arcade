@@ -32,7 +32,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private JLabel tiempo;
     
     // TileMap
-    private Tile tile;
+    private ArrayList<Tile> tiles = new ArrayList<>();
     
     // Proyectiles
     private ArrayList<Balas> balas = new ArrayList<>();
@@ -85,7 +85,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             }
         });
         
-        tile = new Tile(400, 550, 200, 50, "src/sprites/suelo.png", true);
+        tiles.add(new Tile(400, 550, 200, 50, "src/sprites/suelo.png", true));
 
         this.setLayout(null);
         this.add(contadorMonedas);
@@ -123,7 +123,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         	
         }
         
-        tile.draw(g);
+        // Dibujar Tiles
+        for(Tile tile : tiles) {
+        	tile.draw(g);        	
+        }
         
         // Dibujar Monedita
         
@@ -176,29 +179,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     	
         // Movimiento Jugador
         if(player != null) {
-            player.move(this.getWidth(), this.getHeight(), gravedad);
-            
-            if (player.getBounds().intersects(tile.getBounds()) && tile.isSolid()) {
-	            Rectangle inter = player.getBounds().intersection(tile.getBounds());
-
-	            if (inter.height < inter.width) {
-	                if (player.dy > 0) {
-	                    player.y = tile.getY() - player.height;
-	                    player.dy = 0;
-	                    player.tocandoPiso = true;
-	                } else if (player.dy < 0) {
-	                    player.y = tile.getY() + tile.getHeight();
-	                    player.dy = 0;
-	                }
-	            } else {
-	                if (player.dx > 0) {
-	                    player.x = tile.getX() - player.width;
-	                } else if (player.dx < 0) {
-	                    player.x = tile.getX() + tile.getWidth();
-	                }
-	                player.dx = 0;
-	            }
-	        }
+            player.move(this.getWidth(), this.getHeight(), gravedad, tiles);
         }
         
         // Movimiento Balas

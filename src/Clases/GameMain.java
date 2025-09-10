@@ -87,7 +87,7 @@ public class GameMain extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(15, 0, 15, 0);
 
-        JLabel titulo = new JLabel("Undertale");
+        JLabel titulo = new JLabel("The Pirate Odyssey");
         titulo.setFont(Pixelart.deriveFont(100f));
         titulo.setForeground(new Color(0xFFC000));
         titulo.setHorizontalAlignment(SwingConstants.CENTER); 
@@ -119,7 +119,7 @@ public class GameMain extends JFrame {
         
         exitButton.addActionListener(e -> System.exit(0)); // Salir
         
-        titulo.setBounds(175, 150, 600, 100);
+        titulo.setBounds(-110, 150, 1200, 100);
         startButton.setBounds(350, 300, 250, 80); // x, y, ancho, alto
        	nivelButton.setBounds(350, 400, 250, 80);
         exitButton.setBounds(350, 500, 250, 80);

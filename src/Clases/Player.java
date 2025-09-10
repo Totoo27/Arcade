@@ -1,6 +1,7 @@
 package Clases;
 
 import java.awt.Rectangle;
+import java.util.ArrayList;
 
 public class Player {
     
@@ -39,7 +40,7 @@ public class Player {
     }
     
     // Mover
-    public void move(int panelWidth, int panelHeight, int gravedad) {
+    public void move(int panelWidth, int panelHeight, int gravedad, ArrayList<Tile> tiles) {
     	dx = 0;
         if (leftPressed) {
         	dx = -speed;
@@ -72,10 +73,37 @@ public class Player {
         	tocandoPiso = false;
             dy += gravedad;
         }
-
-        y += dy;
         
- 
+        // Colision con los Tiles
+        // Colisión con los Tiles en el eje X
+        for (Tile tile : tiles) {
+            if (this.getBounds().intersects(tile.getBounds()) && tile.isSolid()) {
+                if (this.dx > 0) { // Si el jugador se mueve a la derecha
+                    this.x = tile.getX() - this.width;
+                    this.dx = 0;
+                } else if (this.dx < 0) { // Si el jugador se mueve a la izquierda
+                    this.x = tile.getX() + tile.getWidth();
+                    this.dx = 0;
+                }
+            }
+        }
+
+        // Movimiento y colisión en el eje Y
+        this.y += this.dy;
+        
+        // Colisión con los Tiles en el eje Y
+        for (Tile tile : tiles) {
+            if (this.getBounds().intersects(tile.getBounds()) && tile.isSolid()) {
+                if (this.dy > 0) { // Si el jugador cae
+                    this.y = tile.getY() - this.height;
+                    this.dy = 0;
+                    this.tocandoPiso = true;
+                } else if (this.dy < 0) { // Si el jugador choca por debajo
+                    this.y = tile.getY() + tile.getHeight();
+                    this.dy = 0;
+                }
+            }
+        }
     }
     
     // Bajar la vida y eso
