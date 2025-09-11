@@ -163,7 +163,7 @@ public class GameMain extends JFrame {
 		deathMenuPanel.add(titulo, gbc);
 
 		// Botón Retry
-		JButton retryButton = crearBoton("Retry", 250, 75);
+		JButton retryButton = crearBoton("Reintentar", 250, 75);
 		gbc.gridy = 1;
 		deathMenuPanel.add(retryButton, gbc);
 

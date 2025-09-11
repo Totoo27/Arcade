@@ -24,11 +24,11 @@ public class Tile {
 		}
 	}
 
-	public void draw(Graphics g) {
+	public void draw(Graphics g, int cameraX, int cameraY) {
 		if (image != null) {
-			g.drawImage(image, x, y, width, height, null);
+			g.drawImage(image, x - cameraX, y - cameraY, width, height, null);
 		} else {
-			g.fillRect(x, y, width, height);
+			g.fillRect(x - cameraX, y - cameraY, width, height);
 		}
 	}
 

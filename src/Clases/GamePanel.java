@@ -17,13 +17,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
-
 public class GamePanel extends JPanel implements ActionListener, KeyListener {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
 	// Timers
 	private Timer timer;
@@ -42,13 +36,18 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
 	// Proyectiles
 	private ArrayList<Balas> balas = new ArrayList<>();
-	public int BalaJugWidth = 10;
+	public int BalaJugWidth = 15;
 
 	// Hitbox
 	private boolean showHitboxes = true;
+	
+	// Movimiento Jugador
+	public int cameraX = 0;
+	public int cameraY = 0;
 
-	// Gravedad
+	// Mundo
 	public int gravedad = 1;
+	public int FinalY = 1500;
 
 	// Enemigos
 	private ArrayList<Enemigo> EnemigosBasicos = new ArrayList<>();
@@ -56,7 +55,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	// Jugador
 	private Player player;
 	private int MonedasJug = 0;
-	private int monedasPorEnemigo = 1;
 
 	public GamePanel() {
 		setBackground(new Color(50, 50, 50));
@@ -77,11 +75,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		tiempo.setBounds(860, 20, 200, 40);
 
 		// Instanciar Jugador
-		player = new Player(200, 200, this);
+		player = new Player(500, 350, this);
 		addKeyListener(this);
-
-		EnemigosBasicos.add(new EnemigoMovil(0,0, player));
-		EnemigosBasicos.add(new EnemigoPincho(100, 400));
 
 		// Toggler de hitboxes
 		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("H"), "toggleHitboxes");
@@ -93,7 +88,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			}
 		});
 
-		tiles.add(new Tile(400, 550, 200, 50, "src/sprites/suelo.png", true));
+		tiles.add(new Tile(400, 600, 600, 50, "src/sprites/suelo.png", true));
+		tiles.add(new Tile(900, 450, 400, 50, "src/sprites/suelo.png", true));
 
 		this.setLayout(null);
 		this.add(contadorMonedas);
@@ -126,7 +122,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
 		// Dibujar Tiles
 		for (Tile tile : tiles) {
-			tile.draw(g);
+			tile.draw(g, cameraX, cameraY);
 		}
 
 		// Dibujar Monedita
@@ -138,16 +134,17 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		if (showHitboxes) {
 			for (Balas bala : balas) {
 				g.setColor(Color.red);
-				g.fillRect(bala.x, bala.y, bala.width, bala.height);
+				g.fillRect(bala.x - cameraX, bala.y - cameraY, bala.width, bala.height);
 			}
 
 			for (Enemigo enemigo : EnemigosBasicos) {
-				enemigo.dibujar(g); // Asegúrate de que el método draw esté implementado en la clase Enemigo
+				g.setColor(new Color(255, 0, 0, 125));
+				g.fillRect(enemigo.x - cameraX, enemigo.y - cameraY, enemigo.width, enemigo.height);
 			}
 
 			if (player != null) {
 				g.setColor(new Color(0, 255, 255, 125));
-				g.fillRect(player.x, player.y, player.width, player.height);
+				g.fillRect(player.x - cameraX, player.y - cameraY, player.width, player.height);
 			}
 
 		}
@@ -181,9 +178,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
 		// Movimiento y Colision Enemigos
 		for (Enemigo enemigo : EnemigosBasicos) {
-			enemigo.movimiento(getHeight(), gravedad);
+			enemigo.movimiento(gravedad, tiles);
 
-			// Colisión con jugador
+			// Colision con jugador
 			if (enemigo.getBounds().intersects(player.getBounds())) {
 				player.RecibirHit();
 			}
@@ -197,7 +194,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
 			for (Enemigo enemigo : EnemigosBasicos) {
 
-				if (bala.getBounds().intersects(enemigo.getBounds())) {
+				if (bala.getBounds().intersects(enemigo.getBounds()) && !enemigo.estatico) {
 					enemigo.recibirGolpe();
 					balas.remove(i);
 					impactada = true;
@@ -218,8 +215,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		for (int i = 0; i < EnemigosBasicos.size(); i++) {
 			Enemigo enemigo = EnemigosBasicos.get(i);
 
-			if (enemigo.vida <= 0) {
-				MonedasJug += monedasPorEnemigo;
+			if (enemigo.vida <= 0 || enemigo.y >= FinalY) {
+				MonedasJug += enemigo.monedas;
 				EnemigosBasicos.remove(i);
 			}
 		}
@@ -242,24 +239,32 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		contadorMonedas.setText("" + MonedasJug);
 		balas.clear();
 		EnemigosBasicos.clear();
-		EnemigosBasicos.add(new EnemigoMovil(2000, 400, player)); // Enemigo móvil
-		EnemigosBasicos.add(new EnemigoPincho(100, 650)); // Pincho estático
-		player.x = 200; // Coordenada inicial X
-		player.y = 200; // Coordenada inicial Y
+		
+		// Inicializar Enemigos
+		EnemigosBasicos.add(new EnemigoMovil(400, 400, player)); // Reiniciar enemigos
+		EnemigosBasicos.add(new EnemigoEstatico(400, 580)); // Pincho estático
+		
+		// Inicializar Jugador
+		player.x = 475;// Coordenada inicial X
+		player.y = 350; // Coordenada inicial Y
 		player.vida = player.max_vida; // Restaurar la vida del jugador
+		
+		// Reiniciar movimiento
+		player.leftPressed = false;
+		player.rightPressed = false;
+		player.spacePressed = false;
+		player.disparo = false;
 
 		timer.start();
 	}
 
 	public void disparoJugador(int x, int y, int direccion) {
-		int velocidad = 15;
-		int height = 10;
+		int velocidad = 30;
+		int height = 15;
 
 		balas.add(new Balas(x, y, BalaJugWidth, height, velocidad, direccion));
 	}
 
-	// --- Implementación del KeyListener en GamePanel ---
-	// El GamePanel delega los eventos de teclado al objeto Player
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_LEFT)

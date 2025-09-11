@@ -15,7 +15,7 @@ public class Player {
 	// Velocidad
 	public int dx = 0;
 	public int dy = 0;
-	private int speed = 10;
+	private int speed = 12;
 
 	// Disparo
 	private int direccion = 1;
@@ -42,73 +42,79 @@ public class Player {
 	}
 
 	// Mover
+	// Mover
 	public void move(int panelWidth, int panelHeight, int gravedad, ArrayList<Tile> tiles) {
-		dx = 0;
-		if (leftPressed) {
-			dx = -speed;
-			direccion = -1;
-			margenDisparo = -panel.BalaJugWidth; // Width de las balas del jugador
+	    // 1) Entrada
+	    dx = 0;
+	    if (leftPressed) {
+	        dx = -speed;
+	        direccion = -1;
+	        margenDisparo = -panel.BalaJugWidth;
+	    }
+	    if (rightPressed) {
+	        dx = speed;
+	        direccion = 1;
+	        margenDisparo = width;
+	    }
+	    if (spacePressed && tocandoPiso) {
+	        dy = -20;
+	        tocandoPiso = false;
+	    }
+	    if (disparo) {
+	        Disparar();
+	    }
+	    
+	    dy += gravedad;
+	    
+	    // Colisiones en X
+	    x += dx;
+	    for (Tile tile : tiles) {
+	        if (!tile.isSolid()) continue;
+	        if (this.getBounds().intersects(tile.getBounds())) {
+	            if (this.y + this.height > tile.getY() && this.y < tile.getY() + tile.getHeight()) {
+	                if (dx > 0) { // viene desde la izquierda -> choca por la derecha del tile
+	                    this.x = tile.getX() - this.width;
+	                } else if (dx < 0) { // viene desde la derecha -> choca por la izquierda del tile
+	                    this.x = tile.getX() + tile.getWidth();
+	                }
+	                dx = 0;
+	            }
+	        }
+	    }
 
-		}
-		if (rightPressed) {
-			dx = speed;
-			direccion = 1;
-			margenDisparo = width;
-		}
-		if (spacePressed && tocandoPiso) {
-			y -= 5;
-			dy = -17;
-		}
-		if (disparo) {
-			Disparar();
-		}
+	    // Colisiones en Y
+	    y += dy;
+	    tocandoPiso = false; // recalcularlo
+	    for (Tile tile : tiles) {
+	        if (!tile.isSolid()) continue;
+	        if (this.getBounds().intersects(tile.getBounds())) {
+	            // comprobar solapamiento en X (solo entonces resolvemos colisión en Y)
+	            if (this.x + this.width > tile.getX() && this.x < tile.getX() + tile.getWidth()) {
+	                if (dy > 0) { // está cayendo -> aterriza sobre el tile
+	                    this.y = tile.getY() - this.height;
+	                    dy = 0;
+	                    tocandoPiso = true;
+	                } else if (dy < 0) { // golpeó por abajo (techo)
+	                    this.y = tile.getY() + tile.getHeight();
+	                    dy = 0;
+	                }
+	            }
+	        }
+	    }
 
-		x += dx;
-		if (x < 0)
-			x = 0;
-		if (x + width > panelWidth)
-			x = panelWidth - width;
-
-		if (y + height >= panelHeight) {
-			dy = 0;
-			y = panelHeight - height;
-			tocandoPiso = true;
-		} else {
-			tocandoPiso = false;
-			dy += gravedad;
-		}
-
-		// Colision con los Tiles
-		// Colisión con los Tiles en el eje X
-		for (Tile tile : tiles) {
-			if (this.getBounds().intersects(tile.getBounds()) && tile.isSolid()) {
-				if (this.dx > 0) { // Si el jugador se mueve a la derecha
-					this.x = tile.getX() - this.width;
-					this.dx = 0;
-				} else if (this.dx < 0) { // Si el jugador se mueve a la izquierda
-					this.x = tile.getX() + tile.getWidth();
-					this.dx = 0;
-				}
-			}
-		}
-
-		// Movimiento y colisión en el eje Y
-		this.y += this.dy;
-
-		// Colisión con los Tiles en el eje Y
-		for (Tile tile : tiles) {
-			if (this.getBounds().intersects(tile.getBounds()) && tile.isSolid()) {
-				if (this.dy > 0) { // Si el jugador cae
-					this.y = tile.getY() - this.height;
-					this.dy = 0;
-					this.tocandoPiso = true;
-				} else if (this.dy < 0) { // Si el jugador choca por debajo
-					this.y = tile.getY() + tile.getHeight();
-					this.dy = 0;
-				}
-			}
-		}
+	    // Cámara en coordenadas de mundo: la pantalla mostrará [cameraX .. cameraX+panelWidth]
+	    panel.cameraX = this.x - panelWidth / 2 + this.width / 2;
+	    panel.cameraY = this.y - panelHeight / 2 + this.height / 2;
+	    
+	    // Limite de la camara en Y
+	    panel.cameraY = Math.max(0, Math.min(panel.cameraY, panel.FinalY - panelHeight));
+	    
+	    if(y > panel.FinalY) {
+	    	vida = 0;
+	    	RecibirHit();
+	    }
 	}
+
 
 	// Bajar la vida y eso
 	public void RecibirHit() {
@@ -159,7 +165,8 @@ public class Player {
 	}
 
 	public Rectangle getBounds() {
-		return new Rectangle(x, y, width, height);
+	    return new Rectangle(x, y, width, height);
 	}
+
 
 }
