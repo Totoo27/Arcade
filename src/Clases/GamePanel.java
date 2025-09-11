@@ -11,16 +11,23 @@ import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
 	// Timers
 	private Timer timer;
+	
+	// Botones
+	private JButton continuar;
+	private JButton Salir;
 
 	// Tiempo
 	private int segundos = 0;
@@ -48,18 +55,49 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	// Mundo
 	public int gravedad = 1;
 	public int FinalY = 1500;
+	public int FinalX = 3000;
+	private boolean win = false;
+	public int nivel = 0;
 
 	// Enemigos
 	private ArrayList<Enemigo> EnemigosBasicos = new ArrayList<>();
-
+	
+	// Monedas y Bonus
+	private ArrayList<Bonus> bonuses = new ArrayList<>();
+	
 	// Jugador
 	private Player player;
-	private int MonedasJug = 0;
+	public int MonedasJug = 0;
 
 	public GamePanel() {
 		setBackground(new Color(50, 50, 50));
 		setFocusable(true);
 
+		// --- Botones ---
+		
+        Salir = GameMain.crearBoton("Salir", 250, 75);
+        Salir.setFont(GameMain.Pixelart.deriveFont(28f));
+        Salir.setBounds(275, 450, 200, 60);
+        Salir.setVisible(false);
+        this.add(Salir);
+        
+        continuar = GameMain.crearBoton("Continuar", 250, 75);
+        continuar.setFont(GameMain.Pixelart.deriveFont(28f));
+        continuar.setBounds(525, 450, 200, 60);
+        continuar.setVisible(false);
+        this.add(continuar);
+
+        Salir.addActionListener(e -> {
+            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            frame.dispose(); // Cerrar GamePanel
+            new GameMain().setVisible(true);
+        });
+		
+        continuar.addActionListener(e -> {
+            nivel++;
+            iniciarJuego();
+        });
+        
 		// --- Labels ---
 
 		// ContadorMonedas
@@ -73,11 +111,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		tiempo.setForeground(Color.WHITE);
 		tiempo.setFont(GameMain.Pixelart.deriveFont(36f));
 		tiempo.setBounds(860, 20, 200, 40);
-
-		// Instanciar Jugador
-		player = new Player(500, 350, this);
-		addKeyListener(this);
-
+		
 		// Toggler de hitboxes
 		getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("H"), "toggleHitboxes");
 		getActionMap().put("toggleHitboxes", new AbstractAction() {
@@ -87,9 +121,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				repaint();
 			}
 		});
-
-		tiles.add(new Tile(400, 600, 600, 50, "src/sprites/suelo.png", true));
-		tiles.add(new Tile(900, 450, 400, 50, "src/sprites/suelo.png", true));
 
 		this.setLayout(null);
 		this.add(contadorMonedas);
@@ -125,13 +156,82 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			tile.draw(g, cameraX, cameraY);
 		}
 
-		// Dibujar Monedita
-
-		g.drawImage(new ImageIcon("src/sprites/coin.png").getImage(), 60, 80, 37, 30, this);
+		// Dibujar Monedas del jugador
+		
+		if(!win) {
+			g.drawImage(new ImageIcon("src/sprites/Bonus/coin.png").getImage(), 60, 80, 37, 30, this);
+		}
+		
+		// --------------- SPRITES
+		
+		for(Bonus bonus : bonuses) {
+			g.drawImage(
+					bonus.getSprite(),
+					bonus.x - cameraX,
+					bonus.y - cameraY,
+					bonus.width,
+					bonus.height,
+					this
+					);
+		}
+		
+		for(Enemigo enemigo : EnemigosBasicos) {
+			g.drawImage(
+					enemigo.getSprite(),
+					enemigo.x - cameraX,
+					enemigo.y - cameraY,
+					enemigo.width,
+					enemigo.height,
+					this
+					);
+		}
+		
+		// Pantalla de Ganar
+        if(win == true) {
+        	
+        	timer.stop();
+            contadorMonedas.setVisible(false);
+            tiempo.setVisible(false);
+            
+            EnemigosBasicos.clear();
+            bonuses.clear();
+            removeKeyListener(this);
+            player = null;
+            
+            // Mostrar Botones
+            
+            continuar.setVisible(true);
+            Salir.setVisible(true);
+            
+            // Fondo Negro
+            g.setColor(new Color(0,0,0,125));
+            g.fillRect(0, 0, getWidth(), getHeight());
+            
+            // Mensaje Nivel Completado
+            g.setColor(Color.YELLOW);
+            g.setFont(GameMain.Pixelart.deriveFont(60f));
+            g.drawString("Nivel Completado!", 265, 200);
+            
+            // Tiempo en el que se completa
+            String tiempoTexto = String.format("%02d:%02d", minutos, segundos);
+            g.setColor(Color.WHITE);
+            g.setFont(GameMain.Pixelart.deriveFont(35f));
+            g.drawString("Tiempo: " + tiempoTexto, 370, 300);
+            
+            // Monedas Conseguidas
+            g.drawImage(new ImageIcon("src/sprites/Bonus/coin.png").getImage(), 370, 320, 47, 40, this);
+            g.setColor(Color.WHITE);
+            g.drawString("" + MonedasJug, 420, 350);
+        }
 
 		// --------------- HITBOXES
 
 		if (showHitboxes) {
+			if (player != null) {
+				g.setColor(new Color(0, 255, 255, 125));
+				g.fillRect(player.x - cameraX, player.y - cameraY, player.width, player.height);
+			}
+			
 			for (Balas bala : balas) {
 				g.setColor(Color.red);
 				g.fillRect(bala.x - cameraX, bala.y - cameraY, bala.width, bala.height);
@@ -142,9 +242,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				g.fillRect(enemigo.x - cameraX, enemigo.y - cameraY, enemigo.width, enemigo.height);
 			}
 
-			if (player != null) {
-				g.setColor(new Color(0, 255, 255, 125));
-				g.fillRect(player.x - cameraX, player.y - cameraY, player.width, player.height);
+			for (Bonus bonus : bonuses) {
+				g.setColor(new Color(255, 0, 255, 125));
+				g.fillRect(bonus.x - cameraX, bonus.y - cameraY, bonus.width, bonus.height);
 			}
 
 		}
@@ -165,15 +265,35 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		}
 		String tiempoTexto = String.format("%02d:%02d", minutos, segundos);
 		tiempo.setText(tiempoTexto);
-
-		// Movimiento Jugador
+		
+		// Movimiento Jugador y Ganar
 		if (player != null) {
 			player.move(this.getWidth(), this.getHeight(), gravedad, tiles);
+			
+			if(player.x > FinalX) {
+				win = true;
+			}
 		}
 
 		// Movimiento Balas
 		for (Balas bala : balas) {
 			bala.move();
+		}
+		
+		// Movimiento y Colision de Monedas, botiquines, etc.
+		
+		for (Bonus bonus : bonuses) {
+			bonus.move();
+		}
+		
+		for(int i = 0; i<bonuses.size(); i++) {
+			Bonus bonus = bonuses.get(i);
+			
+			if(player.getBounds().intersects(bonus.getBounds())) {
+				bonus.darBonus();
+				bonuses.remove(i);
+				i--;
+			}
 		}
 
 		// Movimiento y Colision Enemigos
@@ -232,22 +352,29 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		}
 
 		// Reiniciar el estado del juego
+		win = false;
+		Salir.setVisible(false);
+		continuar.setVisible(false);
+		contadorMonedas.setVisible(true);
+		tiempo.setVisible(true);
+		
 		segundos = 0;
 		minutos = 0;
-		ultimoSegundo = System.currentTimeMillis();
 		MonedasJug = 0;
+		ultimoSegundo = System.currentTimeMillis();
 		contadorMonedas.setText("" + MonedasJug);
+		
+		// Reiniciar Estructura del nivel
+		bonuses.clear();
 		balas.clear();
 		EnemigosBasicos.clear();
+		tiles.clear();
 		
-		// Inicializar Enemigos
-		EnemigosBasicos.add(new EnemigoMovil(400, 400, player)); // Reiniciar enemigos
-		EnemigosBasicos.add(new EnemigoEstatico(400, 580)); // Pincho estático
-		
-		// Inicializar Jugador
-		player.x = 475;// Coordenada inicial X
-		player.y = 350; // Coordenada inicial Y
-		player.vida = player.max_vida; // Restaurar la vida del jugador
+		// Inicializar Jugador y Estructura del nivel
+		player = new Player(475, 350, this);
+		player.vida = player.max_vida;
+		addKeyListener(this);
+		GeneracionNivel(nivel);
 		
 		// Reiniciar movimiento
 		player.leftPressed = false;
@@ -263,8 +390,86 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		int height = 15;
 
 		balas.add(new Balas(x, y, BalaJugWidth, height, velocidad, direccion));
+		GameMain.reproducirSonido("src/Sonidos/disparo.wav");
 	}
-
+	
+	// Diseño Niveles
+	
+	public void GeneracionNivel(int nivel) {
+		
+		int coordX;
+		
+		switch(nivel) {
+		
+		// LEVEL 1
+		case 1:
+			
+			EnemigosBasicos.add(new EnemigoMovil(400, 400, player));
+			EnemigosBasicos.add(new EnemigoEstatico(400, 560, "src/sprites/Obstaculos/pincho.png")); // Pincho estático
+			
+			tiles.add(new Tile(400, 600, 600, 50, "src/sprites/Tiles/suelo.png", true));
+			tiles.add(new Tile(900, 450, 400, 50, "src/sprites/Tiles/suelo.png", true));
+			tiles.add(new Tile(1500, 300, 1200, 50, "src/sprites/Tiles/suelo.png", true));
+			
+			bonuses.add(new Bonus(600, 530, 2, this, player));
+			bonuses.add(new Bonus(800, 540, 0, this, player));
+			
+			bonuses.add(new Bonus(1000, 390, 0, this, player));
+			bonuses.add(new Bonus(1200, 390, 1, this, player));
+			
+			break;
+			
+			
+		// LEVEL 2
+		case 2:
+			
+			EnemigosBasicos.add(new EnemigoMovil(400, 400, player));
+			EnemigosBasicos.add(new EnemigoMovil(800, 300, player));
+			
+			EnemigosBasicos.add(new EnemigoEstatico(400, 560, "src/sprites/Obstaculos/pincho.png")); // Pincho estático
+			
+			tiles.add(new Tile(400, 600, 600, 50, "src/sprites/Tiles/suelo.png", true));
+			tiles.add(new Tile(900, 750, 400, 50, "src/sprites/Tiles/suelo.png", true));
+			tiles.add(new Tile(1500, 600, 1200, 50, "src/sprites/Tiles/suelo.png", true));
+			
+			coordX = 1700;
+			for(int i=0;i<4;i++) {
+				EnemigosBasicos.add(new EnemigoEstatico(coordX, 560, "src/sprites/Obstaculos/pincho.png")); // Pincho estático
+				coordX += 50;
+			}
+			
+			bonuses.add(new Bonus(600, 540, 0, this, player));
+			bonuses.add(new Bonus(800, 540, 0, this, player));
+			
+			bonuses.add(new Bonus(1000, 390, 0, this, player));
+			bonuses.add(new Bonus(1200, 390, 1, this, player));
+			
+			break;
+			
+		// LEVEL 3
+		case 3:
+			
+			break;
+		
+		// LEVEL 4
+		case 4:
+			
+			break;
+		
+		// LEVEL 5
+		case 5:
+			
+			break;
+			
+		// LEVEL 6
+		case 6:
+			
+			break;
+		}
+		
+	}
+	
+	// ----------- ACTION LISTENER
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_LEFT)

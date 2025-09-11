@@ -16,9 +16,11 @@ public class Player {
 	public int dx = 0;
 	public int dy = 0;
 	private int speed = 12;
+	private int salto = -20;
 
 	// Disparo
 	private int direccion = 1;
+	private int delayDisparo = 500;
 	private int margenDisparo;
 	private long LastAttackTime;
 
@@ -27,6 +29,9 @@ public class Player {
 	public int vida = max_vida;
 	private boolean inmunidad = false;
 	private long LastHitTime;
+	
+	// Frenesi
+	private long LastFrenesi;
 
 	// Movimientos
 	public boolean leftPressed = false;
@@ -57,7 +62,7 @@ public class Player {
 	        margenDisparo = width;
 	    }
 	    if (spacePressed && tocandoPiso) {
-	        dy = -20;
+	        dy = salto;
 	        tocandoPiso = false;
 	    }
 	    if (disparo) {
@@ -106,13 +111,22 @@ public class Player {
 	    panel.cameraX = this.x - panelWidth / 2 + this.width / 2;
 	    panel.cameraY = this.y - panelHeight / 2 + this.height / 2;
 	    
-	    // Limite de la camara en Y
+	    // Limite de la camara
 	    panel.cameraY = Math.max(0, Math.min(panel.cameraY, panel.FinalY - panelHeight));
+	    panel.cameraX = Math.max(0, Math.min(panel.cameraX, panel.FinalX - panelWidth));
 	    
 	    if(y > panel.FinalY) {
 	    	vida = 0;
 	    	RecibirHit();
 	    }
+	    
+	    if(System.currentTimeMillis() >= LastFrenesi + 8000) {
+			// Valores default
+			speed = 12;
+			delayDisparo = 500;
+			salto = -20;
+	    }
+	    
 	}
 
 
@@ -123,6 +137,10 @@ public class Player {
 			vida--;
 			if (vida <= 0) {
 				vida = 0;
+				leftPressed = false;
+				rightPressed = false;
+				spacePressed = false;
+				disparo = false;
 				morir();
 			}
 			// Reproducir Sonido
@@ -157,11 +175,18 @@ public class Player {
 	// Disparar (un toque obvio)
 	private void Disparar() {
 
-		if (System.currentTimeMillis() >= LastAttackTime + 500) {
+		if (System.currentTimeMillis() >= LastAttackTime + delayDisparo) {
 			panel.disparoJugador(x + margenDisparo, y + height / 3, direccion);
 			LastAttackTime = System.currentTimeMillis();
 		}
 
+	}
+	
+	public void frenesi() {
+		speed = 16;
+		delayDisparo = 350;
+		salto = -25;
+		LastFrenesi = System.currentTimeMillis();
 	}
 
 	public Rectangle getBounds() {

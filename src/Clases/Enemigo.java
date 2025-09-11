@@ -1,6 +1,7 @@
 package Clases;
 
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
@@ -12,6 +13,7 @@ public abstract class Enemigo {
     protected int vida;
     protected int monedas;
     protected boolean estatico;
+    protected Image sprite;
 
     public Enemigo(int x, int y, int width, int height, int vida, int monedas, boolean estatico) {
         this.x = x;
@@ -31,5 +33,9 @@ public abstract class Enemigo {
 
     public Rectangle getBounds() {
         return new Rectangle(x, y, width, height);
+    }
+    
+    public Image getSprite() {
+    	return sprite;
     }
 }

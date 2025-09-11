@@ -16,6 +16,9 @@ import java.awt.Insets;
 import java.io.File;
 import java.io.IOException;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -69,6 +72,7 @@ public class GameMain extends JFrame {
 		// Cargar imagen de fondo
 		ImageIcon fondoIcon = new ImageIcon("src/resources/portada.png");
 		Image fondo = fondoIcon.getImage();
+		Musica.reproducirMusica("src/Canciones/Menu.wav");
 
 		// Crear panel personalizado
 		JPanel menuPanel = new JPanel(new GridBagLayout()) {
@@ -117,6 +121,7 @@ public class GameMain extends JFrame {
 			cardLayout.show(mainPanel, "Juego");
 			gamePanel.requestFocus();
 			gamePanel.requestFocusInWindow();
+			gamePanel.nivel = 1;
 			gamePanel.iniciarJuego();
 		});
 
@@ -227,6 +232,17 @@ public class GameMain extends JFrame {
 		boton.setPreferredSize(new Dimension(ancho, alto));
 		return boton;
 	}
+	
+	public static void reproducirSonido(String rutaArchivo) {
+        try {
+            AudioInputStream audioInput = AudioSystem.getAudioInputStream(new File(rutaArchivo));
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInput);
+            clip.start();
+        } catch (Exception e) {
+            System.out.println("Error al reproducir sonido: " + e.getMessage());
+        }
+    }
 
 	public static void main(String[] args) {
 
