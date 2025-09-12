@@ -60,7 +60,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	public int nivel = 0;
 
 	// Enemigos
-	private ArrayList<Enemigo> EnemigosBasicos = new ArrayList<>();
+	public ArrayList<Enemigo> EnemigosBasicos = new ArrayList<>();
+	private Boss boss;
 	
 	// Monedas y Bonus
 	private ArrayList<Bonus> bonuses = new ArrayList<>();
@@ -232,6 +233,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				g.fillRect(player.x - cameraX, player.y - cameraY, player.width, player.height);
 			}
 			
+			if (boss != null) {
+				g.setColor(new Color(255, 0, 0, 125));
+				g.fillRect(boss.x - cameraX, boss.y - cameraY, boss.width, boss.height);
+			}
+			
 			for (Balas bala : balas) {
 				g.setColor(Color.red);
 				g.fillRect(bala.x - cameraX, bala.y - cameraY, bala.width, bala.height);
@@ -305,6 +311,15 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				player.RecibirHit();
 			}
 		}
+		
+		if(boss != null) {
+			boss.move(gravedad, tiles);
+
+			// Colision con jugador
+			if (boss.getBounds().intersects(player.getBounds())) {
+				player.RecibirHit();
+			}
+		}
 
 		// Enemigos Recibiendo Golpe
 
@@ -327,6 +342,20 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				i--;
 				continue;
 			}
+			
+			if(boss != null) {
+				if (bala.getBounds().intersects(boss.getBounds())) {
+					boss.recibirGolpe();
+					balas.remove(i);
+					impactada = true;
+					break;
+				}
+			}
+
+			if (impactada) {
+				i--;
+				continue;
+			}
 
 		}
 
@@ -340,6 +369,20 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				EnemigosBasicos.remove(i);
 			}
 		}
+		
+		if (boss != null) {
+		    if (boss.vida <= 0) {
+		        MonedasJug += boss.monedas;
+
+		        // solo si el boss es un Boss1
+		        if (boss instanceof Boss1 b1 && b1.ultimoPalazo != null) {
+		            EnemigosBasicos.remove(b1.ultimoPalazo);
+		        }
+
+		        boss = null;
+		    }
+		}
+
 
 		// Escribir monedas
 		contadorMonedas.setText("" + MonedasJug);
@@ -405,11 +448,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		case 1:
 			
 			EnemigosBasicos.add(new EnemigoMovil(400, 400, player));
-			EnemigosBasicos.add(new EnemigoEstatico(400, 560, "src/sprites/Obstaculos/pincho.png")); // Pincho estático
+			EnemigosBasicos.add(new EnemigoEstatico(400, 560, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho estático
 			
-			tiles.add(new Tile(400, 600, 600, 50, "src/sprites/Tiles/suelo.png", true));
-			tiles.add(new Tile(900, 450, 400, 50, "src/sprites/Tiles/suelo.png", true));
-			tiles.add(new Tile(1500, 300, 1200, 50, "src/sprites/Tiles/suelo.png", true));
+			tiles.add(new Tile(400, 600, 600, 50, "src/sprites/Tiles/suelo.png", true, false));
+			tiles.add(new Tile(900, 450, 400, 50, "src/sprites/Tiles/suelo.png", true, false));
+			tiles.add(new Tile(1500, 300, 1200, 50, "src/sprites/Tiles/suelo.png", true, false));
+			tiles.add(new Tile(900, 300, 300, 25, "src/sprites/Tiles/plataforma.png", true, true));
 			
 			bonuses.add(new Bonus(600, 530, 2, this, player));
 			bonuses.add(new Bonus(800, 540, 0, this, player));
@@ -426,15 +470,15 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			EnemigosBasicos.add(new EnemigoMovil(400, 400, player));
 			EnemigosBasicos.add(new EnemigoMovil(800, 300, player));
 			
-			EnemigosBasicos.add(new EnemigoEstatico(400, 560, "src/sprites/Obstaculos/pincho.png")); // Pincho estático
+			EnemigosBasicos.add(new EnemigoEstatico(400, 560, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho estático
 			
-			tiles.add(new Tile(400, 600, 600, 50, "src/sprites/Tiles/suelo.png", true));
-			tiles.add(new Tile(900, 750, 400, 50, "src/sprites/Tiles/suelo.png", true));
-			tiles.add(new Tile(1500, 600, 1200, 50, "src/sprites/Tiles/suelo.png", true));
+			tiles.add(new Tile(400, 600, 600, 50, "src/sprites/Tiles/suelo.png", true, false));
+			tiles.add(new Tile(900, 750, 400, 50, "src/sprites/Tiles/suelo.png", true, false));
+			tiles.add(new Tile(1500, 600, 1200, 50, "src/sprites/Tiles/suelo.png", true, false));
 			
 			coordX = 1700;
 			for(int i=0;i<4;i++) {
-				EnemigosBasicos.add(new EnemigoEstatico(coordX, 560, "src/sprites/Obstaculos/pincho.png")); // Pincho estático
+				EnemigosBasicos.add(new EnemigoEstatico(coordX, 560, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho estático
 				coordX += 50;
 			}
 			
@@ -448,6 +492,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			
 		// LEVEL 3
 		case 3:
+			
+			tiles.add(new Tile(0, 400, 2000, 50, "src/sprites/Tiles/suelo.png", true, false));
+			boss = new Boss1(500, 200, this, player);
 			
 			break;
 		

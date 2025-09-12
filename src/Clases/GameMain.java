@@ -121,7 +121,7 @@ public class GameMain extends JFrame {
 			cardLayout.show(mainPanel, "Juego");
 			gamePanel.requestFocus();
 			gamePanel.requestFocusInWindow();
-			gamePanel.nivel = 1;
+			gamePanel.nivel = 3;
 			gamePanel.iniciarJuego();
 		});
 

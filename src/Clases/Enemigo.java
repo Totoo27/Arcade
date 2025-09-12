@@ -26,7 +26,7 @@ public abstract class Enemigo {
     }
 
     public abstract void movimiento(int gravedad, ArrayList<Tile> tiles);
-
+    
     public void recibirGolpe() {
         vida--;
     }
