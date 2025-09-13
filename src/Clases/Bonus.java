@@ -74,6 +74,7 @@ public class Bonus {
 		switch(tipo_bonus) {
 		case 0:
 			panel.MonedasJug++;
+			GameMain.reproducirSonido("src/Sonidos/moneda.wav");
 			break;
 			
 		case 1:
@@ -85,6 +86,7 @@ public class Bonus {
 			
 		case 2:
 			player.frenesi();
+			GameMain.reproducirSonido("src/Sonidos/frenesi.wav");
 			break;
 		}
 	}

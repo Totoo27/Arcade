@@ -25,7 +25,7 @@ public class Boss1 extends Boss {
 	
 	public Boss1(int startX, int startY, GamePanel panel, Player player) {
 		super(startX, startY, 60, 120, 15, panel, player);
-		monedas = 50;
+		monedas = 25;
 	}
 	
 	@Override
@@ -53,12 +53,12 @@ public class Boss1 extends Boss {
 		// Colisiones en X
 	    x += dx;
 	    for (Tile tile : tiles) {
-	        if (!tile.isSolid()) continue;
+	        if (!tile.isSolid() || tile.plataforma) continue;
 	        if (this.getBounds().intersects(tile.getBounds())) {
 	            if (this.y + this.height > tile.getY() && this.y < tile.getY() + tile.getHeight()) {
-	                if (dx > 0) { 
+	                if (dx > 0) {
 	                    this.x = tile.getX() - this.width;
-	                } else if (dx < 0) { 
+	                } else if (dx < 0) {
 	                    this.x = tile.getX() + tile.getWidth();
 	                }
 	                dx = 0;
@@ -66,18 +66,27 @@ public class Boss1 extends Boss {
 	        }
 	    }
 
-	    // Colisiones en Y
 	    y += dy;
 	    tocandoPiso = false;
 	    for (Tile tile : tiles) {
 	        if (!tile.isSolid()) continue;
 	        if (this.getBounds().intersects(tile.getBounds())) {
+	            // comprobar solapamiento en X
 	            if (this.x + this.width > tile.getX() && this.x < tile.getX() + tile.getWidth()) {
-	                if (dy > 0) { 
-	                    this.y = tile.getY() - this.height;
-	                    dy = 0;
-	                    tocandoPiso = true;
-	                } else if (dy < 0) { 
+	                
+	                if (dy > 0) {
+	                    // si es plataforma solo dejar pisar si venís desde arriba
+	                	if(tile.plataforma && player.y >= y + height) {
+	                		return;
+	                	}
+	                	
+	                    if (!tile.plataforma || (this.y + this.height - dy <= tile.getY())) {
+	                        this.y = tile.getY() - this.height;
+	                        dy = 0;
+	                        tocandoPiso = true;
+	                    }
+	                } 
+	                else if (dy < 0 && !tile.plataforma) {
 	                    this.y = tile.getY() + tile.getHeight();
 	                    dy = 0;
 	                }

@@ -37,6 +37,7 @@ public class Player {
 	public boolean leftPressed = false;
 	public boolean rightPressed = false;
 	public boolean spacePressed = false;
+	public boolean downPressed = false;
 	public boolean disparo = false;
 	public boolean tocandoPiso = false;
 
@@ -97,6 +98,11 @@ public class Player {
 	            if (this.x + this.width > tile.getX() && this.x < tile.getX() + tile.getWidth()) {
 	                
 	                if (dy > 0) {
+	                	
+	                	if(tile.plataforma && downPressed) {
+	                		continue;
+	                	}
+	                	
 	                    // si es plataforma solo dejar pisar si venís desde arriba
 	                    if (!tile.plataforma || (this.y + this.height - dy <= tile.getY())) {
 	                        this.y = tile.getY() - this.height;
