@@ -13,10 +13,60 @@ public class EnemigoMovil extends Enemigo {
 	private int dy;
 	private boolean tocandoPiso = false;
 	private Player jugador;
+	
+	private boolean disparador = false;
+	
+	private GamePanel panel;
+	
+	//variables disparador
+	
+	private int delayDisparo = 1500; // milisegundos entre disparos
+	private long lastAttackTime = 0;
+	private int margenDisparo;
+	private int direccion = -1;
+	
 
-	public EnemigoMovil(int x, int y, Player jugador) {
+	public EnemigoMovil(int x, int y, Player jugador, int tipoEnemigo, GamePanel panel) {
 		super(x, y, 40, 80, 3, 3, false);
 		this.jugador = jugador;
+		this.panel = panel;
+		
+		switch(tipoEnemigo) {
+		case 0: //enemigo normal
+			
+			velocidad = 3;
+			vida = 3;
+			
+			
+		break;
+		
+		case 1: //tanque
+			
+			velocidad = 2;
+			vida = 6;
+			
+			break;
+			
+		case 2: //rapido
+			
+			velocidad = 5;
+			vida = 2;
+			
+			break;
+			
+		case 3://disparador
+			
+			velocidad = 3;
+			vida = 3;
+			disparador = true;
+			
+			break;
+		
+		
+		}
+		
+
+		
 	}
 
 	@Override
@@ -24,8 +74,12 @@ public class EnemigoMovil extends Enemigo {
 		// Movimiento horizontal: sigue al jugador
 		if (jugador.x < x) {
 			dx = -velocidad;
+			direccion = -1;
+			margenDisparo = -panel.BalaJugWidth;
 		} else if (jugador.x > x) {
 			dx = velocidad;
+			margenDisparo =	width;
+			direccion = 1;
 		}
 
 		// Saltar si el jugador está cerca
@@ -82,5 +136,21 @@ public class EnemigoMovil extends Enemigo {
 	            }
 	        }
 	    }
+	   
+	    if(disparador == true) {
+	    	
+	    	if(System.currentTimeMillis() >= lastAttackTime + delayDisparo) {
+	    		disparo();
+	    		lastAttackTime = System.currentTimeMillis();
+	    	} 
+	    	
+	    }
+	    
+	    
 	}
+		
+	public void disparo() {
+		panel.disparoEnemigo(x + margenDisparo, y + height / 3, direccion);		
+	}
+	
 }

@@ -8,8 +8,9 @@ public class Balas {
 	public int height; 
 	public int width;
 	public int velocidad;
+	public boolean balaEnemiga = false;
 	
-	public Balas(int x, int y, int width, int height, int velocidad, int direccion) {
+	public Balas(int x, int y, int width, int height, int velocidad, int direccion, boolean balaEnemiga) {
 		
 		this.x = x;
 		this.y = y;
@@ -18,6 +19,8 @@ public class Balas {
 		this.width = width;
 		
 		this.velocidad = velocidad * direccion;
+		
+		this.balaEnemiga = balaEnemiga;
 	}
 	
 	public void move(){

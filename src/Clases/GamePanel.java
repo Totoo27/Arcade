@@ -332,6 +332,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				player.RecibirHit();
 			}
 		}
+		
+		
 
 		// Enemigos Recibiendo Golpe
 
@@ -341,12 +343,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
 			for (Enemigo enemigo : EnemigosBasicos) {
 
-				if (bala.getBounds().intersects(enemigo.getBounds()) && !enemigo.estatico) {
+				if (bala.getBounds().intersects(enemigo.getBounds()) && !enemigo.estatico && bala.balaEnemiga == false) { 
 					enemigo.recibirGolpe();
 					balas.remove(i);
 					impactada = true;
 					break;
 				}
+				
 
 			}
 
@@ -368,8 +371,27 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				i--;
 				continue;
 			}
+			
+			if (player != null) {
+
+				if (bala.getBounds().intersects(player.getBounds()) && bala.balaEnemiga == true) { 
+					player.RecibirHit();
+					balas.remove(i);
+					impactada = true;
+					break;
+				}
+				
+
+			}
+
+			if (impactada) {
+				i--;
+				continue;
+			}
 
 		}
+		
+		
 
 		// Muerte Enemigos
 
@@ -456,7 +478,17 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		int velocidad = 30;
 		int height = 15;
 
-		balas.add(new Balas(x, y, BalaJugWidth, height, velocidad, direccion));
+		balas.add(new Balas(x, y, BalaJugWidth, height, velocidad, direccion, false));
+		GameMain.reproducirSonido("src/Sonidos/disparo.wav");
+	}
+	
+	
+	
+	public void disparoEnemigo(int x, int y, int direccion) {
+		int velocidad = 30;
+		int height = 15;
+
+		balas.add(new Balas(x, y, BalaJugWidth, height, velocidad, direccion, true));
 		GameMain.reproducirSonido("src/Sonidos/disparo.wav");
 	}
 	
@@ -472,7 +504,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		case 1:
 			Musica.reproducirMusica("src/Canciones/musica1erMundo.wav");
 			
-			EnemigosBasicos.add(new EnemigoMovil(400, 400, player));
 			EnemigosBasicos.add(new EnemigoEstatico(400, 560, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho estático
 			
 			tiles.add(new Tile(400, 600, 600, 50, "src/sprites/Tiles/suelo.png", true, false));
@@ -640,23 +671,23 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		case 2:
 			
 			if(player.x >= 400 && EnemigosGenerados == 0) {
-				EnemigosBasicos.add(new EnemigoMovil(1000, 1100, player));
+				EnemigosBasicos.add(new EnemigoMovil(1000, 1100, player, 3, this));
 				EnemigosGenerados++;
 			}
 			
 			if(player.x >= 2400 && EnemigosGenerados == 1) {
-				EnemigosBasicos.add(new EnemigoMovil(2900, 1100, player));
+				EnemigosBasicos.add(new EnemigoMovil(2900, 1100, player, 1, this));
 				EnemigosGenerados++;
 			}
 			
 			if(player.x >= 3500 && EnemigosGenerados == 2) {
-				EnemigosBasicos.add(new EnemigoMovil(4000, 800, player));
-				EnemigosBasicos.add(new EnemigoMovil(4200, 1000, player));
+				EnemigosBasicos.add(new EnemigoMovil(4000, 800, player, 2, this));
+				EnemigosBasicos.add(new EnemigoMovil(4200, 1000, player, 2, this));
 				EnemigosGenerados++;
 			}
 			
 			if(player.x >= 4500 && EnemigosGenerados == 3) {
-				EnemigosBasicos.add(new EnemigoMovil(5100, 700, player));
+				EnemigosBasicos.add(new EnemigoMovil(5100, 700, player, 1, this));
 				EnemigosGenerados++;
 			}
 			
