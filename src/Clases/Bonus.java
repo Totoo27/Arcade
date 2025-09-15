@@ -34,24 +34,30 @@ public class Bonus {
 		this.player = player;
 		
 		switch(tipo_bonus) {
-		case 0:
-			
+		
+		case 0: // Monedas
 			this.width = 37;
 			this.height = 30;
 			sprite = new ImageIcon("src/sprites/Bonus/coin.png").getImage();
 			
 			break;
 			
-		case 1:
+		case 1: // Botiquin
 			this.width = 26;
 			this.height = 40;
 			sprite = new ImageIcon("src/sprites/Bonus/vendas.png").getImage();
 			break;
 			
-		case 2:
+		case 2: // Frenesi
 			this.width = 62;
 			this.height = 54;
 			sprite = new ImageIcon("src/sprites/Bonus/frenesi.png").getImage();
+			break;
+			
+		case 3: // CheckPoint
+			this.width = 50;
+			this.height = 50;
+			sprite = new ImageIcon("src/sprites/Bonus/checkpoint.png").getImage();
 			break;
 		}
 	}
@@ -87,6 +93,11 @@ public class Bonus {
 		case 2:
 			player.frenesi();
 			GameMain.reproducirSonido("src/Sonidos/frenesi.wav");
+			break;
+			
+		case 3:
+			panel.checkpoint(x + width /2 - player.width / 2, y);
+			GameMain.reproducirSonido("src/Sonidos/checkpoint.wav");
 			break;
 		}
 	}

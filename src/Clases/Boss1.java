@@ -24,7 +24,7 @@ public class Boss1 extends Boss {
 	private int delayEntrePalazos = 300;
 	
 	public Boss1(int startX, int startY, GamePanel panel, Player player) {
-		super(startX, startY, 60, 120, 15, panel, player);
+		super(startX, startY, 60, 120, 12, panel, player);
 		monedas = 25;
 	}
 	

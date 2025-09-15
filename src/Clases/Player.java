@@ -138,6 +138,12 @@ public class Player {
 			delayDisparo = 500;
 			salto = -20;
 	    }
+
+		// Después de un tiempito se le va la inmunidad
+		if (System.currentTimeMillis() >= LastHitTime + 500 && inmunidad) {
+			LastHitTime = System.currentTimeMillis();
+			inmunidad = false;
+		}
 	    
 	}
 
@@ -157,12 +163,6 @@ public class Player {
 			}
 			// Reproducir Sonido
 			LastHitTime = System.currentTimeMillis();
-		}
-
-		// Después de un tiempito se le va la inmunidad
-		if (System.currentTimeMillis() >= LastHitTime + 500) {
-			LastHitTime = System.currentTimeMillis();
-			inmunidad = false;
 		}
 
 	}

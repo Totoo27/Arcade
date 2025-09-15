@@ -32,29 +32,29 @@ public class EnemigoMovil extends Enemigo {
 		this.panel = panel;
 		
 		switch(tipoEnemigo) {
-		case 0: //enemigo normal
+		
+		case 0: // enemigo normal
 			
 			velocidad = 3;
 			vida = 3;
 			
-			
 		break;
 		
-		case 1: //tanque
+		case 1: // tanque
 			
 			velocidad = 2;
 			vida = 6;
 			
 			break;
 			
-		case 2: //rapido
+		case 2: // rapido
 			
 			velocidad = 5;
 			vida = 2;
 			
 			break;
 			
-		case 3://disparador
+		case 3: // disparador
 			
 			velocidad = 3;
 			vida = 3;
@@ -71,7 +71,9 @@ public class EnemigoMovil extends Enemigo {
 
 	@Override
 	public void movimiento(int gravedad, ArrayList<Tile> tiles) {
-		// Movimiento horizontal: sigue al jugador
+		
+		int distancia = Math.abs(x - jugador.x);
+		
 		if (jugador.x < x) {
 			dx = -velocidad;
 			direccion = -1;
@@ -81,9 +83,14 @@ public class EnemigoMovil extends Enemigo {
 			margenDisparo =	width;
 			direccion = 1;
 		}
+		
+		// Si es disparador y el jugador está a menos de 300 → quedarse quieto
+	    if (disparador && distancia <= 300) {
+	        dx = 0;
+	    }
 
 		// Saltar si el jugador está cerca
-		int distancia = Math.abs(x - jugador.x);
+		
 		if (distancia < 200 && tocandoPiso) {
 			if (jugador.y + jugador.height < y) {
 				dy = -20;
@@ -137,7 +144,7 @@ public class EnemigoMovil extends Enemigo {
 	        }
 	    }
 	   
-	    if(disparador == true) {
+	    if(disparador == true && distancia <= 600) {
 	    	
 	    	if(System.currentTimeMillis() >= lastAttackTime + delayDisparo) {
 	    		disparo();
