@@ -25,7 +25,7 @@ public class Boss1 extends Boss {
 	
 	public Boss1(int startX, int startY, GamePanel panel, Player player) {
 		super(startX, startY, 60, 120, 12, panel, player);
-		monedas = 25;
+		monedas = 20;
 	}
 	
 	@Override

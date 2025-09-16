@@ -197,7 +197,7 @@ public class Player {
 	public void frenesi() {
 		speed = 16;
 		delayDisparo = 350;
-		salto = -25;
+		salto = -23;
 		LastFrenesi = System.currentTimeMillis();
 	}
 

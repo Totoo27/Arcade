@@ -20,6 +20,7 @@ public class Boss2 extends Boss {
 	
 	public Boss2(int startX, int startY, GamePanel panel, Player player) {
 		super(startX, startY, 90, 110, 12, panel, player);
+		monedas = 30;
 	}
 	
 	@Override
@@ -47,7 +48,7 @@ public class Boss2 extends Boss {
 			}
 			if(System.currentTimeMillis() >= LastAttackTime + DuracionAtaque) {
 				ataque = false;
-				y = y - 30;
+				y = y - 20;
 				width = 90;
 				height = 110;
 			}
@@ -107,8 +108,8 @@ public class Boss2 extends Boss {
 	@Override
 	public void ataque() {
 		ataque = true;
-		width = 80;
-		height = 80;
+		width = 90;
+		height = 90;
 	}
 	
 }

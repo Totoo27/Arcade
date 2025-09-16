@@ -37,6 +37,7 @@ public class EnemigoMovil extends Enemigo {
 			
 			velocidad = 3;
 			vida = 3;
+			monedas = 3;
 			
 		break;
 		
@@ -44,21 +45,24 @@ public class EnemigoMovil extends Enemigo {
 			
 			velocidad = 2;
 			vida = 6;
+			monedas = 5;
 			
 			break;
 			
 		case 2: // rapido
 			
 			velocidad = 5;
-			vida = 2;
+			vida = 1;
+			monedas = 2;
 			
 			break;
 			
 		case 3: // disparador
 			
 			velocidad = 3;
-			vida = 3;
+			vida = 2;
 			disparador = true;
+			monedas = 4;
 			
 			break;
 		
