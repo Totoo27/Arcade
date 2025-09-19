@@ -23,12 +23,13 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
+
 
 public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
-	// Timer
-	private Timer timer;
+	private Thread gameThread; 
+	private final int FPS = 60; 
+	private final double TIME_PER_UPDATE = 1_000_000_000.0 / FPS; // Tiempo por frame en nanosegundos
 	public boolean enPausa = false;
 	
 	// Botones
@@ -230,7 +231,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		// Pantalla de Ganar
         if(win == true) {
         	
-        	timer.stop();
+        	
             contadorMonedas.setVisible(false);
             tiempo.setVisible(false);
             
@@ -584,65 +585,134 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	
 	// Empezar los niveles
 	
+private void actualizarLogica() {
+    if (enPausa) {
+        return; // No actualiza nada mientras esté en pausa
+    }
+
+    // Generacion Enemigos
+    niveles.GeneracionEventosNivel(nivel, player, this);
+
+    // Tiempo del juego
+    if (System.currentTimeMillis() >= ultimoSegundo + 1000) {
+        segundos++;
+        ultimoSegundo = System.currentTimeMillis();
+        if (segundos == 60) {
+            segundos = 0;
+            minutos++;
+        }
+    }
+    String tiempoTexto = String.format("%02d:%02d", minutos, segundos);
+    tiempo.setText(tiempoTexto);
+
+    // Movimiento del jugador, balas, enemigos, etc.
+    if (player != null) {
+        player.move(this.getWidth(), this.getHeight(), gravedad, tiles);
+
+        if (player.x > FinalX) {
+            win = true;
+        }
+    }
+
+    // Movimiento de balas
+    for (Balas bala : balas) {
+        bala.move();
+    }
+
+    // Movimiento de morteros
+    for (BalaMortero mortero : morteros) {
+        mortero.move(gravedad, tiles);
+    }
+
+    // Movimiento y colisiones de monedas, botiquines, etc.
+    for (Bonus bonus : bonuses) {
+        bonus.move();
+    }
+
+    // Colisiones y lógica adicional...
+}
+
 	public void iniciarJuego() {
-		if (timer == null) {
-		    timer = new Timer(16, this);
-		    requestFocusInWindow();
-		}
+    if (gameThread == null) {
+        gameThread = new Thread(() -> {
+            long lastTime = System.nanoTime();
+            double delta = 0;
 
-		// Reiniciar el estado del juego
-		enPausa = false;
-		win = false;
-		Salir.setVisible(false);
-		continuar.setVisible(false);
-		contadorMonedas.setVisible(true);
-		tiempo.setVisible(true);
+            while (true) {
+                long currentTime = System.nanoTime();
+                delta += (currentTime - lastTime) / TIME_PER_UPDATE;
+                lastTime = currentTime;
 
-		bossSpawn = false;
-		puertaFinal = null;
-		Arrays.fill(SpawnEnemigos, false);
-		
-		segundos = 0;
-		minutos = 0;
-		MonedasJug = 0;
-		ultimoSegundo = System.currentTimeMillis();
-		contadorMonedas.setText("" + MonedasJug);
-		
-		// Reiniciar Estructura del nivel
-		bonuses.clear();
-		balas.clear();
-		morteros.clear();
-		EnemigosBasicos.clear();
-		bosses.clear();
-		tiles.clear();
-		
-		// Inicializar Jugador y Estructura del nivel
-		player = new Player(50, 1050, this);
-		player.vida = player.max_vida;
-		addKeyListener(this);
-		niveles.GeneracionNivel(nivel, player, this);
-		
-		// Reiniciar movimiento
-		player.leftPressed = false;
-		player.rightPressed = false;
-		player.spacePressed = false;
-		player.disparo = false;
-		
-		if(hayCheckpoint) {
-		    System.arraycopy(C_SpawnEnemigos, 0, SpawnEnemigos, 0, C_SpawnEnemigos.length);
-		    player.x = C_x;
-		    player.y = C_y;
-		    MonedasJug = C_monedas;
-		    segundos = C_segundos;
-		    minutos = C_minutos;
-		    Restarts++;
-		} else {
-		    Arrays.fill(SpawnEnemigos, false);
-		}
-		
-		timer.start();
-		
-	}
+                // Actualizar lógica del juego en intervalos fijos
+                while (delta >= 1) {
+                    actualizarLogica();
+                    delta--;
+                }
+
+                // Renderizar el juego
+                repaint();
+
+                // Dormir para limitar el uso de CPU
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        gameThread.start();
+    }
+
+    // Reiniciar el estado del juego
+    enPausa = false;
+    win = false;
+    Salir.setVisible(false);
+    continuar.setVisible(false);
+    contadorMonedas.setVisible(true);
+    tiempo.setVisible(true);
+
+    bossSpawn = false;
+    puertaFinal = null;
+    Arrays.fill(SpawnEnemigos, false);
+
+    segundos = 0;
+    minutos = 0;
+    MonedasJug = 0;
+    ultimoSegundo = System.currentTimeMillis();
+    contadorMonedas.setText("" + MonedasJug);
+
+    // Reiniciar Estructura del nivel
+    bonuses.clear();
+    balas.clear();
+    morteros.clear();
+    EnemigosBasicos.clear();
+    bosses.clear();
+    tiles.clear();
+
+    // Inicializar Jugador y Estructura del nivel
+    player = new Player(50, 1050, this);
+    player.vida = player.max_vida;
+    addKeyListener(this);
+    niveles.GeneracionNivel(nivel, player, this);
+
+    // Reiniciar movimiento
+    player.leftPressed = false;
+    player.rightPressed = false;
+    player.spacePressed = false;
+    player.disparo = false;
+
+    if (hayCheckpoint) {
+        System.arraycopy(C_SpawnEnemigos, 0, SpawnEnemigos, 0, C_SpawnEnemigos.length);
+        player.x = C_x;
+        player.y = C_y;
+        MonedasJug = C_monedas;
+        segundos = C_segundos;
+        minutos = C_minutos;
+        Restarts++;
+    } else {
+        Arrays.fill(SpawnEnemigos, false);
+    }
+}
 	
 	// Checkpoint
 	
