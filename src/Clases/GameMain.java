@@ -142,7 +142,7 @@ public class GameMain extends JFrame {
 			gamePanel.requestFocus();
 			gamePanel.requestFocusInWindow();
 			gamePanel.hayCheckpoint = false;
-			gamePanel.nivel = 3;
+			gamePanel.nivel = 1;
 			gamePanel.iniciarJuego();
 		});
 
@@ -273,6 +273,8 @@ public class GameMain extends JFrame {
 	        cardLayout.show(mainPanel, "Juego");  // cambia a la pantalla de juego
 	        gamePanel.nivel = 1;
 	        gamePanel.iniciarJuego();            // inicia el nivel 1
+		    gamePanel.requestFocusInWindow();
+	        
 	    });
 
 	    // === Botón Isla 2 ===
@@ -285,8 +287,7 @@ public class GameMain extends JFrame {
 	        cardLayout.show(mainPanel, "Juego");
 	        gamePanel.nivel = 2;
 	        gamePanel.iniciarJuego();
-	        
-	        
+		    gamePanel.requestFocusInWindow();
 	    });
 
 	    // === Botón Isla 3 ===
@@ -299,6 +300,7 @@ public class GameMain extends JFrame {
 	        cardLayout.show(mainPanel, "Juego");
 	        gamePanel.nivel = 3;
 	        gamePanel.iniciarJuego();
+		    gamePanel.requestFocusInWindow();
 	    });
 
 	    // === Botón Isla 4 ===
@@ -311,6 +313,7 @@ public class GameMain extends JFrame {
 	        cardLayout.show(mainPanel, "Juego");
 	        gamePanel.nivel = 4;
 	        gamePanel.iniciarJuego();
+		    gamePanel.requestFocusInWindow();
 	    });
 
 	    // Agregar botones al panel (encima del mapa)

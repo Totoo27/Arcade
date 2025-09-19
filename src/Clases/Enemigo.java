@@ -14,6 +14,7 @@ public abstract class Enemigo {
     protected int monedas;
     protected boolean estatico;
     protected Image sprite;
+    protected int direccion = -1;
 
     public Enemigo(int x, int y, int width, int height, int vida, int monedas, boolean estatico) {
         this.x = x;

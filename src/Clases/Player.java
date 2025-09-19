@@ -15,11 +15,11 @@ public class Player {
 	// Velocidad
 	public int dx = 0;
 	public int dy = 0;
-	private int speed = 12;
+	public int speed = 12;
 	private int salto = -20;
 
 	// Disparo
-	private int direccion = 1;
+	public int direccion = 1;
 	private int delayDisparo = 500;
 	private int margenDisparo;
 	private long LastAttackTime;
@@ -29,10 +29,17 @@ public class Player {
 	public int vida = max_vida;
 	private boolean inmunidad = false;
 	private long LastHitTime;
-	private long frameEspera = 0;
 	
 	// Frenesi
 	private long LastFrenesi;
+	
+	//Slide
+	private int speedSlide = 30;
+	private boolean sliding = false;
+	private int delaySlide = 1000;
+	private long LastSlide;
+	private int slideDuration = 200;
+	private long firstSlide;
 
 	// Movimientos
 	public boolean leftPressed = false;
@@ -41,6 +48,8 @@ public class Player {
 	public boolean downPressed = false;
 	public boolean disparo = false;
 	public boolean tocandoPiso = false;
+	public boolean ctrlPressed = false;
+
 
 	public Player(int startX, int startY, GamePanel panel) {
 		this.x = startX;
@@ -49,26 +58,46 @@ public class Player {
 	}
 
 	// Mover
-	// Mover
 	public void move(int panelWidth, int panelHeight, int gravedad, ArrayList<Tile> tiles) {
-	    // 1) Entrada
-	    dx = 0;
+		
+		if(!sliding) {
+		    dx = 0;
+		}
 	    if (leftPressed) {
-	        dx = -speed;
-	        direccion = -1;
-	        margenDisparo = -panel.BalaJugWidth;
+	    	if(sliding && direccion > 0) {
+	        	StopSliding();
+	        }
+	    	if(!sliding) {
+	    		dx = -speed;
+		        direccion = -1;
+		        margenDisparo = -panel.BalaJugWidth;
+	    	}
+	        
+	        
 	    }
 	    if (rightPressed) {
-	        dx = speed;
-	        direccion = 1;
-	        margenDisparo = width;
+	    	if(sliding && direccion < 0) {
+	        	StopSliding();
+	        }
+	    	if(!sliding) {
+	    		dx = speed;
+	 	        direccion = 1;
+	 	        margenDisparo = width;
+	    	}
 	    }
 	    if (spacePressed && tocandoPiso) {
+	    	if(sliding) {
+	        	StopSliding();
+	        }
 	        dy = salto;
 	        tocandoPiso = false;
+	        
 	    }
 	    if (disparo) {
 	        Disparar();
+	    }
+	    if(ctrlPressed && tocandoPiso) {
+	    	Slide();
 	    }
 	    
 	    dy += gravedad;
@@ -138,6 +167,11 @@ public class Player {
 			speed = 12;
 			delayDisparo = 500;
 	    }
+	    
+	    if(System.currentTimeMillis() >= firstSlide + slideDuration && sliding) {
+	    	StopSliding();
+	    	dx = 0;
+	    }
 
 		// Después de un tiempito se le va la inmunidad
 		if (System.currentTimeMillis() >= LastHitTime + 500 && inmunidad) {
@@ -175,6 +209,7 @@ public class Player {
 			panel.C_minutos = panel.minutos;
 		}
 		
+		panel.timer.stop();
 		GameMain gameMain = (GameMain) SwingUtilities.getWindowAncestor(panel);
 		gameMain.mostrarMenuMuerte();
 		
@@ -199,6 +234,31 @@ public class Player {
 			LastAttackTime = System.currentTimeMillis();
 		}
 
+	}
+	
+	private void Slide() {
+		
+		if(System.currentTimeMillis() >= LastSlide + delaySlide) {
+			dx = speedSlide * direccion;
+			sliding = true;
+			
+			firstSlide = System.currentTimeMillis();
+			LastSlide = System.currentTimeMillis();
+			
+			width = 80;
+			height = 40;
+			y += 40;
+		}
+	}
+	
+	private void StopSliding() {
+		sliding = false;
+		width = 40;
+		height = 80;
+		if(tocandoPiso) {
+			y -= 40;
+		}
+		
 	}
 	
 	public void frenesi() {

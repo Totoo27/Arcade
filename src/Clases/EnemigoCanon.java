@@ -7,6 +7,8 @@ import java.awt.Rectangle;
 import java.lang.Math;
 import java.util.ArrayList;
 
+import javax.swing.ImageIcon;
+
 public class EnemigoCanon extends Enemigo {
 
 	private GamePanel panel;
@@ -17,7 +19,6 @@ public class EnemigoCanon extends Enemigo {
 	private long lastAttackTime = 0;
 	private int margenDisparo;
 	private int act_distancia;
-	private int direccion;
 	private Player player;
 	
 	public EnemigoCanon(int x, int y, GamePanel panel, int direccion, Player player, int act_distancia) {
@@ -32,6 +33,7 @@ public class EnemigoCanon extends Enemigo {
 		} else {
 			margenDisparo = 0;
 		}
+		sprite = new ImageIcon("src/sprites/Obstaculos/canion.png").getImage();
 	}
 
 	@Override

@@ -60,8 +60,17 @@ public class Boss3 extends Boss{
 	@Override
 	public void ataque() {
 		
-		posJugador = player.x + (player.dx*15);
-		panel.disparoBoss(x+width/2, y+width/2, posJugador, player);
+		double prob = Math.random();
+
+	    if (prob < 0.4) { // Predict
+	        posJugador = player.x + (player.dx * 15);
+	    } else if (prob < 0.6) { // Predict Inverso
+	    	posJugador = player.x - (player.dx * 10);
+	    } else { // Pos del jugador
+	    	 posJugador = player.x;
+	    }
+
+	    panel.disparoBoss(x + width / 2, y + width / 2, posJugador, player);
 		
 	}
 

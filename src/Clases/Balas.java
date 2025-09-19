@@ -3,6 +3,8 @@ package Clases;
 import java.awt.Image;
 import java.awt.Rectangle;
 
+import javax.swing.ImageIcon;
+
 public class Balas {
 
 	public int x, y;
@@ -10,7 +12,7 @@ public class Balas {
 	public int width;
 	public int velocidad;
 	public boolean balaEnemiga = false;
-	public Image sprite;
+	public Image sprite = new ImageIcon("src/sprites/Obstaculos/bala.png").getImage();
 	
 	public Balas(int x, int y, int width, int height, int velocidad, int direccion, boolean balaEnemiga) {
 		

@@ -4,13 +4,15 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
+import javax.swing.ImageIcon;
+
 public class BalaMortero {
 	
 	public int x,y;
 	public int width, height;
 	public int pos_caida;
 	private Player jugador;
-	public Image sprite;
+	public Image sprite = new ImageIcon("src/sprites/Obstaculos/bala.png").getImage();
 	
 	private double px, py; // posición de física en double
 	private double vx, vy;

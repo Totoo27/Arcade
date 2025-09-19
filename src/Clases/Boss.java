@@ -1,5 +1,7 @@
 package Clases;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -11,10 +13,16 @@ public abstract class Boss {
 	protected int width;
 	protected int height;
     protected int vida;
+    protected int max_vida;
     protected int monedas;
 	protected Player player;
 	protected GamePanel panel;
 	protected Image sprite;
+	
+	// HealthBar
+	private int barraAnchoMax = 80; 
+	private int barraAlto = 8;  
+	private int barraMargenY = 25;
 	
 	public Boss(int startX, int startY, int width, int height, int vida, GamePanel panel, Player player) {
 		
@@ -22,7 +30,8 @@ public abstract class Boss {
 		this.y = startY;
 		this.width = width;
 		this.height = height;
-		this.vida = vida;
+		this.max_vida = vida;
+		this.vida = max_vida;
 		this.player = player;
 		this.panel = panel;
 		
@@ -43,5 +52,17 @@ public abstract class Boss {
 	public Image getSprite() {
     	return sprite;
     }
+	
+	public void dibujarHP(Graphics g) {             
+
+        int barraVida = (int)((vida / (double)max_vida) * barraAnchoMax);
+        
+        g.setColor(Color.BLACK);
+        g.fillRect(x - 4 - panel.cameraX - barraAnchoMax/2 + width/2, y -4 - panel.cameraY - barraMargenY, barraAnchoMax+8, barraAlto+8);
+
+        g.setColor(Color.RED);
+        g.fillRect(x-panel.cameraX - barraAnchoMax/2 + width/2, y-panel.cameraY - barraMargenY, barraVida, barraAlto);
+		
+	}
 	
 }

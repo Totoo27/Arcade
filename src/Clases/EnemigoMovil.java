@@ -13,18 +13,21 @@ public class EnemigoMovil extends Enemigo {
 	private int dy;
 	private boolean tocandoPiso = false;
 	private Player jugador;
-	
+	private int max_vida;
 	private boolean disparador = false;
 	
 	private GamePanel panel;
 	
-	//variables disparador
+	// Variables disparador
 	
 	private int delayDisparo = 1500; // milisegundos entre disparos
 	private long lastAttackTime = 0;
 	private int margenDisparo;
-	private int direccion = -1;
 	
+	// HealthBar
+	private int barraAnchoMax = 50;
+	private int barraAlto = 5;
+	private int barraMargenY = 15;
 
 	public EnemigoMovil(int x, int y, Player jugador, int tipoEnemigo, GamePanel panel) {
 		super(x, y, 40, 80, 3, 3, false);
@@ -36,7 +39,8 @@ public class EnemigoMovil extends Enemigo {
 		case 0: // enemigo normal
 			
 			velocidad = 3;
-			vida = 3;
+			max_vida = 3;
+			vida = max_vida;
 			monedas = 3;
 			
 		break;
@@ -44,7 +48,8 @@ public class EnemigoMovil extends Enemigo {
 		case 1: // tanque
 			
 			velocidad = 2;
-			vida = 6;
+			max_vida = 6;
+			vida = max_vida;
 			monedas = 5;
 			
 			break;
@@ -52,7 +57,8 @@ public class EnemigoMovil extends Enemigo {
 		case 2: // rapido
 			
 			velocidad = 5;
-			vida = 1;
+			max_vida = 1;
+			vida = max_vida;
 			monedas = 2;
 			
 			break;
@@ -60,7 +66,8 @@ public class EnemigoMovil extends Enemigo {
 		case 3: // disparador
 			
 			velocidad = 3;
-			vida = 2;
+			max_vida = 2;
+			vida = max_vida;
 			disparador = true;
 			monedas = 4;
 			
@@ -162,6 +169,18 @@ public class EnemigoMovil extends Enemigo {
 		
 	public void disparo() {
 		panel.disparoEnemigo(x + margenDisparo, y + height / 3, direccion);		
+	}
+	
+	public void dibujarHP(Graphics g) {             
+
+        int barraVida = (int)((vida / (double)max_vida) * barraAnchoMax);
+        
+        g.setColor(Color.BLACK);
+        g.fillRect(x - 4 - panel.cameraX - barraAnchoMax/2 + width/2, y -4 - panel.cameraY - barraMargenY, barraAnchoMax+8, barraAlto+8);
+
+        g.setColor(Color.RED);
+        g.fillRect(x-panel.cameraX - barraAnchoMax/2 + width/2, y-panel.cameraY - barraMargenY, barraVida, barraAlto);
+		
 	}
 	
 }

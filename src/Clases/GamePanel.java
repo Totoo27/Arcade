@@ -28,7 +28,7 @@ import javax.swing.Timer;
 public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
 	// Timer
-	private Timer timer;
+	public Timer timer;
 	public boolean enPausa = false;
 	
 	// Botones
@@ -200,16 +200,59 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 					);
 		}
 		
-		for(Enemigo enemigo : EnemigosBasicos) {
+		for(Balas bala : balas) {
 			g.drawImage(
-					enemigo.getSprite(),
-					enemigo.x - cameraX,
-					enemigo.y - cameraY,
-					enemigo.width,
-					enemigo.height,
+					bala.getSprite(),
+					bala.x - cameraX,
+					bala.y - cameraY,
+					bala.width,
+					bala.height,
 					this
 					);
 		}
+		
+
+		
+		for (BalaMortero bala : morteros) {
+			g.drawImage(
+					bala.getSprite(),
+					bala.x - cameraX,
+					bala.y - cameraY,
+					bala.width,
+					bala.height,
+					this
+					);
+		}
+		
+		for(Enemigo enemigo : EnemigosBasicos) {
+			if(enemigo.direccion < 0) {
+				g.drawImage(
+						enemigo.getSprite(),
+						enemigo.x - cameraX,
+						enemigo.y - cameraY,
+						enemigo.width,
+						enemigo.height,
+						this
+						);
+			} else {
+				g.drawImage(
+						enemigo.getSprite(),
+						enemigo.x - cameraX + enemigo.width,
+						enemigo.y - cameraY,
+						-enemigo.width,
+						enemigo.height,
+						this
+						);
+			}
+			
+			
+			if (enemigo instanceof EnemigoMovil) {
+		        ((EnemigoMovil) enemigo).dibujarHP(g);
+		    }
+			
+		}
+		
+		
 		
 		if(player != null) {
 			// Dibujar vida del jugador
@@ -318,6 +361,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			for (Boss boss : bosses) {
 				g.setColor(new Color(255, 0, 0, 125));
 				g.fillRect(boss.x - cameraX, boss.y - cameraY, boss.width, boss.height);
+				
+				boss.dibujarHP(g);
 			}
 			
 			for (Balas bala : balas) {
@@ -566,6 +611,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			
 		    if (boss.vida <= 0) {
 		        MonedasJug += boss.monedas;
+		        if (rand.nextInt(100) < probBotiquin) {
+					bonuses.add(new Bonus(boss.x + boss.width/2 - 13, boss.y + 10, 1, this, player));
+				}
 
 		        // solo si el boss es un Boss1
 		        if (boss instanceof Boss1 b1 && b1.ultimoPalazo != null) {
@@ -686,8 +734,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	}
 	
 	public void disparoBoss(int x, int y, int direccion, Player jugador) {
-		int height = 30;
-		int width = 30;
+		int height = 40;
+		int width = 40;
 		
 		morteros.add(new BalaMortero(x, y, width, height, direccion, jugador));
 		GameMain.reproducirSonido("src/Sonidos/disparoHeavy.wav");
@@ -781,10 +829,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				player.downPressed = true;
 			if (e.getKeyCode() == KeyEvent.VK_SHIFT)
 				player.disparo = true;
+			if (e.getKeyCode() == KeyEvent.VK_CONTROL)
+				player.ctrlPressed = true;
 			}
 		}
-		
-		
+			
+			
 
 	@Override
 	public void keyReleased(KeyEvent e) {
@@ -799,8 +849,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				player.downPressed = false;
 			if (e.getKeyCode() == KeyEvent.VK_SHIFT)
 				player.disparo = false;
+			if(e.getKeyCode() == KeyEvent.VK_CONTROL)
+				player.ctrlPressed = false;
 		}
-	}
+		}
 
 	@Override
 	public void keyTyped(KeyEvent e) {}
