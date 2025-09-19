@@ -2,13 +2,16 @@ package Clases;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.swing.AbstractAction;
@@ -24,31 +27,33 @@ import javax.swing.Timer;
 
 public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
-	// Timers
+	// Timer
 	private Timer timer;
+	public boolean enPausa = false;
 	
 	// Botones
 	private JButton continuar;
 	private JButton Salir;
 
 	// Tiempo
-	private int segundos = 0;
-	private int minutos = 0;
+	public int segundos = 0;
+	public int minutos = 0;
 	private long ultimoSegundo = 0;
 	
 	// Rangos
-	private int tiempoObjetivo = 0; // En segundos
-	private int P_Monedas = 0;
+	public int tiempoObjetivo = 0; // En segundos
+	public int P_Monedas = 0;
 
 	// Labels
 	private JLabel contadorMonedas;
 	private JLabel tiempo;
 
 	// TileMap
-	private ArrayList<Tile> tiles = new ArrayList<>();
+	public ArrayList<Tile> tiles = new ArrayList<>();
 
 	// Proyectiles
 	private ArrayList<Balas> balas = new ArrayList<>();
+	private ArrayList<BalaMortero> morteros = new ArrayList<>();
 	public int BalaJugWidth = 15;
 
 	// Hitbox
@@ -57,7 +62,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	// Movimiento Jugador
 	public int cameraX = 0;
 	public int cameraY = 0;
-	private int VelFondo = 10;
+	public int VelFondo = 10;
 
 	// Mundo
 	public int gravedad = 1;
@@ -65,33 +70,37 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	public int FinalX = 3000;
 	private boolean win = false;
 	public int nivel = 0;
-	private boolean bossSpawn = false;
-	private Tile puertaFinal;
-	private int EnemigosGenerados = 0;
-	private boolean hayCheckpoint = false;
+	public boolean bossSpawn = false;
+	public Tile puertaFinal;
+	public boolean[] SpawnEnemigos = new boolean[10];
+	
+	// GeneracionNiveles
+	private Niveles niveles = new Niveles();
 	
 	// CheckPoint
 	
 	private int C_x = 0;
 	private int C_y = 0;
 	private int C_monedas = 0;
-	private int C_EnemigosGenerados = 0;
-	private int C_segundos = 0;
-	private int C_minutos = 0;
+	private boolean[] C_SpawnEnemigos = new boolean[10];
+	public int C_segundos = 0;
+	public int C_minutos = 0;
 	private int Restarts = 0;
+	public boolean hayCheckpoint = false;
 	
 	// Enemigos
 	public ArrayList<Enemigo> EnemigosBasicos = new ArrayList<>();
-	private ArrayList<Boss> bosses = new ArrayList<>();
+	public ArrayList<Boss> bosses = new ArrayList<>();
 	
 	// Monedas y Bonus
-	private ArrayList<Bonus> bonuses = new ArrayList<>();
+	public ArrayList<Bonus> bonuses = new ArrayList<>();
 	private int probBotiquin = 50;
 	private Random rand = new Random();
 	
 	// Jugador
 	private Player player;
 	public int MonedasJug = 0;
+
 
 	public GamePanel() {
 		setBackground(new Color(50, 50, 50));
@@ -256,7 +265,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             g.drawString("" + MonedasJug, 370, 325);
             
             // Resets del Jugador
-            g.drawString("Restarts: " + Restarts, 270, 375);
+            if(Restarts > 0) {
+            	g.setColor(new Color(255, 100, 100));
+            	g.drawString("- Restarts: " + Restarts, 275, 385);
+            } else {
+            	g.drawString("No Restarts", 270, 385);
+            }
+           
             
             // Dibujar Rangos
             g.drawImage(StatsToRank(1), 270, 245, 40, 40, this);
@@ -279,6 +294,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             if(promedio > 5) promedio = 5;
 
             // Obtener letra final
+            if(promedio == 5 && Restarts > 0) {
+            	promedio = 4;
+            }
             String rankFinal = valueToRank(promedio);
 
             // Cargar imagen final
@@ -289,8 +307,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
 		if (showHitboxes) {
 			if (player != null) {
-				g.setColor(new Color(0, 255, 255, 125));
-				g.fillRect(player.x - cameraX, player.y - cameraY, player.width, player.height);
+				
+				if(player.vida > 0) {
+					g.setColor(new Color(0, 255, 255, 125));
+					g.fillRect(player.x - cameraX, player.y - cameraY, player.width, player.height);
+				}
+				
 			}
 			
 			for (Boss boss : bosses) {
@@ -301,6 +323,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			for (Balas bala : balas) {
 				g.setColor(Color.red);
 				g.fillRect(bala.x - cameraX, bala.y - cameraY, bala.width, bala.height);
+			}
+			
+			for (BalaMortero mortero : morteros) {
+				g.setColor(Color.red);
+				g.fillRect(mortero.x - cameraX, mortero.y - cameraY, mortero.width, mortero.height);
 			}
 
 			for (Enemigo enemigo : EnemigosBasicos) {
@@ -316,12 +343,26 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		}
 		repaint();
 	}
+	
+	public void pausarJuego() {
+	    enPausa = true;
+	    player.leftPressed = false;
+	    player.rightPressed = false;
+	    player.spacePressed = false;
+	    player.downPressed = false;
+	    player.disparo = false;
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		
+		if (enPausa) {
+		    return; // No actualiza nada mientras esté en pausa
+		}
+
+		
 		// Generacion Enemigos
-		GeneracionEventosNivel(nivel, player);
+		niveles.GeneracionEventosNivel(nivel, player, this);
 
 		// Tiempo juego
 		if (System.currentTimeMillis() >= ultimoSegundo + 1000) {
@@ -349,6 +390,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			bala.move();
 		}
 		
+		// Movimiento Morteros
+		
+		for(BalaMortero mortero : morteros) {
+			mortero.move(gravedad, tiles);
+		}
+		
 		// Movimiento y Colision de Monedas, botiquines, etc.
 		
 		for (Bonus bonus : bonuses) {
@@ -363,6 +410,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				bonuses.remove(i);
 				i--;
 			}
+		}
+		
+		// Disparo Caniones
+		for (Enemigo enemigo : EnemigosBasicos) {
+		    if (enemigo instanceof EnemigoCanon) {
+		        ((EnemigoCanon) enemigo).disparo();
+		    }
 		}
 
 		// Movimiento y Colision Enemigos
@@ -390,7 +444,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			Balas bala = balas.get(i);
 			if(bala.x > FinalX || bala.x + bala.width < 0) {
 				balas.remove(i);
-				System.out.print("chau bala");
 			}
 		}
 
@@ -401,6 +454,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			boolean impactada = false;
 
 			for (Enemigo enemigo : EnemigosBasicos) {
+				
+				if (enemigo instanceof EnemigoCanon) {
+					continue;
+				}
 
 				if (bala.getBounds().intersects(enemigo.getBounds()) && !enemigo.estatico && bala.balaEnemiga == false) {
 					enemigo.recibirGolpe();
@@ -448,6 +505,43 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			}
 
 		}
+		
+		// Mortero Desapareciendo
+		
+		for(int i = 0; i<morteros.size(); i++) {
+			BalaMortero mortero = morteros.get(i);
+			boolean impactada = false;
+			
+			if(mortero.getBounds().intersects(player.getBounds())) {
+				player.RecibirHit();
+				morteros.remove(i);
+				impactada = true;
+				break;
+			}
+			
+			if (impactada) {
+				i--;
+				continue;
+			}
+			
+			for(Tile tile : tiles) {
+				if(mortero.getBounds().intersects(tile.getBounds())) {
+					morteros.remove(i);
+					impactada = true;
+					break;
+				}
+				
+				if(impactada) {
+					break;
+				}
+			}
+			
+			if (impactada) {
+				i--;
+				continue;
+			}
+			
+		}
 
 		// Muerte Enemigos
 
@@ -485,15 +579,19 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
 		// Escribir monedas
 		contadorMonedas.setText("" + MonedasJug);
+		
 	}
-
+	
+	// Empezar los niveles
+	
 	public void iniciarJuego() {
 		if (timer == null) {
-			timer = new Timer(16, this); // Masomenos 60fps
-			requestFocusInWindow();
+		    timer = new Timer(16, this);
+		    requestFocusInWindow();
 		}
 
 		// Reiniciar el estado del juego
+		enPausa = false;
 		win = false;
 		Salir.setVisible(false);
 		continuar.setVisible(false);
@@ -502,7 +600,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
 		bossSpawn = false;
 		puertaFinal = null;
-		EnemigosGenerados = 0;
+		Arrays.fill(SpawnEnemigos, false);
 		
 		segundos = 0;
 		minutos = 0;
@@ -513,6 +611,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		// Reiniciar Estructura del nivel
 		bonuses.clear();
 		balas.clear();
+		morteros.clear();
 		EnemigosBasicos.clear();
 		bosses.clear();
 		tiles.clear();
@@ -521,7 +620,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		player = new Player(50, 1050, this);
 		player.vida = player.max_vida;
 		addKeyListener(this);
-		GeneracionNivel(nivel);
+		niveles.GeneracionNivel(nivel, player, this);
 		
 		// Reiniciar movimiento
 		player.leftPressed = false;
@@ -530,17 +629,22 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		player.disparo = false;
 		
 		if(hayCheckpoint) {
-			EnemigosGenerados = C_EnemigosGenerados;
-			player.x = C_x;
-			player.y = C_y;
-			MonedasJug = C_monedas;
-			segundos = C_segundos;
-			minutos = C_minutos;
-			Restarts++;
+		    System.arraycopy(C_SpawnEnemigos, 0, SpawnEnemigos, 0, C_SpawnEnemigos.length);
+		    player.x = C_x;
+		    player.y = C_y;
+		    MonedasJug = C_monedas;
+		    segundos = C_segundos;
+		    minutos = C_minutos;
+		    Restarts++;
+		} else {
+		    Arrays.fill(SpawnEnemigos, false);
 		}
-
+		
 		timer.start();
+		
 	}
+	
+	// Checkpoint
 	
 	public void checkpoint(int x, int y) {
 		hayCheckpoint = true;
@@ -548,11 +652,14 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		C_x = x;
 		C_y = y;
 		C_monedas = MonedasJug;
-		C_EnemigosGenerados = EnemigosGenerados - 1;
+		System.arraycopy(SpawnEnemigos, 0, C_SpawnEnemigos, 0, C_SpawnEnemigos.length);
 		C_segundos = segundos;
 		C_minutos = minutos;
+		player.vida = player.max_vida;
 		
 	}
+	
+	// DISPAROS
 
 	public void disparoJugador(int x, int y, int direccion) {
 		int velocidad = 30;
@@ -570,464 +677,20 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		GameMain.reproducirSonido("src/Sonidos/disparo.wav");
 	}
 	
-	// Estructura Niveles (Tiles, Bonus, Pinchos)
-	public void GeneracionNivel(int nivel) {
-		
-		int coordX;
-		int coordY;
-		
-		switch(nivel) {
-		
-		// LEVEL 1
-		case 1:
-			Musica.reproducirMusica("src/Canciones/musica1erMundo.wav");
-			VelFondo = 10;
-			
-			// Parámetros Rangos
-			P_Monedas = 52;
-			tiempoObjetivo = 42;
-			
-			// Límites Nivel
-			FinalX = PixelCoord(144);
-			
-			puertaFinal = new Tile(PixelCoord(143), 0, 50, FinalY, "src/sprites/Tiles/arena.png", true, false);
-			tiles.add(puertaFinal);
-			
-			// Plataforma
-			coordY = 1200;
-			tiles.add(new Tile(0, coordY, PixelCoord(8), 50, "src/sprites/Tiles/suelo.png", true, false));
-			tiles.add(new Tile(0, coordY + 50, PixelCoord(8), FinalY - 1250, "src/sprites/Tiles/arena.png", true, false));
-			
-			// Plataforma
-			coordY = 1200;
-			EnemigosBasicos.add(new EnemigoEstatico(PixelCoord(14), coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-			tiles.add(new Tile(PixelCoord(14), coordY, PixelCoord(12), 50, "src/sprites/Tiles/suelo.png", true, false));
-			tiles.add(new Tile(PixelCoord(14), coordY + 50, PixelCoord(12), FinalY - 1250, "src/sprites/Tiles/arena.png", true, false));
-			tiles.add(new Tile(PixelCoord(17), coordY - 175, PixelCoord(6), 25, "src/sprites/Tiles/plataforma.png", true, true));
-			EnemigosBasicos.add(new EnemigoEstatico(1260, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-			EnemigosBasicos.add(new EnemigoEstatico(1210, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-			coordX = 800;
-			for(int i=0;i<2;i++) {
-				bonuses.add(new Bonus(coordX, coordY - 60, 0, this, player));
-				coordX += 200;
-			}
-			bonuses.add(new Bonus(975, coordY - 235, 0, this, player));
-			
-			// Plataforma
-			coordY = 875;
-			tiles.add(new Tile(1300, coordY, 600, 50, "src/sprites/Tiles/suelo.png", true, false));
-			tiles.add(new Tile(1300, coordY + 50, 600, FinalY - 925, "src/sprites/Tiles/arena.png", true, false));
-			tiles.add(new Tile(1450, coordY - 175, 300, 25, "src/sprites/Tiles/plataforma.png", true, true));
-			coordX = 1505;
-			for(int i = 0; i<4; i++) {
-				EnemigosBasicos.add(new EnemigoEstatico(coordX, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-				coordX += 50;
-			}
-			coordX = 1485;
-			for(int i=0;i<2;i++) {
-				bonuses.add(new Bonus(coordX, coordY - 235, 0, this, player));
-				coordX += 200;
-			}
-			
-			// Plataforma
-			tiles.add(new Tile(2200, 1050, 250, 25, "src/sprites/Tiles/plataforma.png", true, true));
-			coordX = 2235;
-			for(int i=0;i<2;i++) {
-				bonuses.add(new Bonus(coordX, 990, 0, this, player));
-				coordX += 150;
-			}
-			
-			// Plataforma
-			coordY = 1250;
-			tiles.add(new Tile(2600, coordY, 400, 50, "src/sprites/Tiles/suelo.png", true, false));
-			EnemigosBasicos.add(new EnemigoEstatico(2600, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-			EnemigosBasicos.add(new EnemigoEstatico(2645, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-			EnemigosBasicos.add(new EnemigoEstatico(2960, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-			tiles.add(new Tile(2600, coordY + 50, 400, FinalY - 1300, "src/sprites/Tiles/arena.png", true, false));
-			coordX = 2735;
-			for(int i=0;i<3;i++) {
-				bonuses.add(new Bonus(coordX, coordY - 60, 0, this, player));
-				coordX += 75;
-			}
-			
-			// Plataforma
-			tiles.add(new Tile(3300, 1250, 250, 25, "src/sprites/Tiles/plataforma.png", true, true));
-			coordY = 1250;
-			for(int i=0;i<3;i++) {
-				bonuses.add(new Bonus(3420, coordY - 60, 0, this, player));
-				coordY -= 120;
-			}
-			
-			// Plataforma
-			coordY = 1100;
-			tiles.add(new Tile(3700, coordY, 550, 50, "src/sprites/Tiles/suelo.png", true, false));
-			tiles.add(new Tile(3700, coordY + 50, 550, FinalY - 1150, "src/sprites/Tiles/arena.png", true, false));
-			tiles.add(new Tile(3850, coordY - 175, 250, 25, "src/sprites/Tiles/plataforma.png", true, true));
-			coordX = 3855;
-			for(int i = 0; i<3; i++) {
-				EnemigosBasicos.add(new EnemigoEstatico(coordX, 885, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-				coordX += 50;
-			}
-			coordX = 3850;
-			for(int i=0;i<3;i++) {
-				bonuses.add(new Bonus(coordX, coordY - 60, 0, this, player));
-				coordX += 100;
-			}
-			
-			// Plataforma
-			coordY = 850;
-			tiles.add(new Tile(4500, coordY, 800, 50, "src/sprites/Tiles/suelo.png", true, false));
-			tiles.add(new Tile(4500, coordY + 50, 800, FinalY - 900, "src/sprites/Tiles/arena.png", true, false));
-			coordX = 4905;
-			for(int i = 0; i<4; i++) {
-				EnemigosBasicos.add(new EnemigoEstatico(coordX, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-				coordX += 50;
-			}
-			
-			// Plataforma
-			coordY = PixelCoord(20);
-			tiles.add(new Tile(PixelCoord(114), coordY, PixelCoord(30), 50, "src/sprites/Tiles/suelo.png", true, false));
-			tiles.add(new Tile(PixelCoord(114), coordY + 50, PixelCoord(30), FinalY - 1050, "src/sprites/Tiles/arena.png", true, false));
-			EnemigosBasicos.add(new EnemigoEstatico(PixelCoord(114), coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-			bonuses.add(new Bonus(PixelCoord(116), PixelCoord(20) - 100, 3, this, player));
-			coordX = 6355;
-			for(int i = 0; i<4; i++) {
-				EnemigosBasicos.add(new EnemigoEstatico(coordX, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-				coordX += 50;
-			}
-			tiles.add(new Tile(6000, coordY - 175, 250, 25, "src/sprites/Tiles/plataforma.png", true, true));
-			tiles.add(new Tile(6650, coordY - 175, 250, 25, "src/sprites/Tiles/plataforma.png", true, true));
-			bonuses.add(new Bonus(6425, coordY - 235, 2, this, player));
-			
-			
-			break;
-			
-			
-		// LEVEL 2
-		case 2:
-			Musica.reproducirMusica("src/Canciones/musica1erMundo.wav");
-			
-			// Parámetros Rangos
-			P_Monedas = 115;
-			tiempoObjetivo = 115;
-			
-			// Limites Nivel
-			VelFondo = 15;
-			FinalX = PixelCoord(267);
-			FinalY = PixelCoord(81);
-			puertaFinal = new Tile(PixelCoord(266), 0, 50, PixelCoord(24), "src/sprites/Tiles/arena.png", true, false);
-			tiles.add(puertaFinal);
-			
-			// Spawn Jugador
-			player.y = PixelCoord(66);
-			
-			// Plataforma
-			coordY = PixelCoord(68);
-			tiles.add(new Tile(0, coordY, PixelCoord(15), 50, "src/sprites/Tiles/suelo.png", true, false));
-			tiles.add(new Tile(0, coordY + 50, PixelCoord(15), FinalY - coordY, "src/sprites/Tiles/arena.png", true, false));
+	public void disparoCanion(int x, int y, int direccion) {
+		int velocidad = 28;
+		int height = 20;
 
-			// Plataforma
-			tiles.add(new Tile(PixelCoord(22), coordY, PixelCoord(9), 50, "src/sprites/Tiles/suelo.png", true, false));
-			tiles.add(new Tile(PixelCoord(22), coordY + 50, PixelCoord(9), FinalY - coordY, "src/sprites/Tiles/arena.png", true, false));
-			
-			// Plataforma
-			tiles.add(new Tile(PixelCoord(35), coordY, PixelCoord(9), 50, "src/sprites/Tiles/suelo.png", true, false));
-			tiles.add(new Tile(PixelCoord(35), coordY + 50, PixelCoord(9), FinalY - coordY, "src/sprites/Tiles/arena.png", true, false));
-			
-			// Plataforma
-			coordY = PixelCoord(64) + 25;
-			coordX = PixelCoord(27);
-			tiles.add(new Tile(PixelCoord(26), coordY, PixelCoord(14), 25, "src/sprites/Tiles/plataforma.png", true, true));
-			for(int i=0; i<4; i++) {
-				bonuses.add(new Bonus(coordX, coordY - 60, 0, this, player));
-				coordX += 200;
-			}
-			
-			// Plataforma
-			coordY = 3050;
-			tiles.add(new Tile(1500, coordY, 300, 25, "src/sprites/Tiles/plataforma.png", true, true));
-			bonuses.add(new Bonus(1630, coordY - 210, 0, this, player));
-			
-			// Plataforma
-			coordY = 3400;
-			tiles.add(new Tile(2450, coordY, 550, 25, "src/sprites/Tiles/plataforma.png", true, true));
-			EnemigosBasicos.add(new EnemigoEstatico(2450, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-			EnemigosBasicos.add(new EnemigoEstatico(2960, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-			coordX = 2500;
-			for(int i=0; i<3; i++) {
-				bonuses.add(new Bonus(coordX, coordY - 60, 0, this, player));
-				coordX += 200;
-			}
-			
-			// Plataforma
-			tiles.add(new Tile(3200, coordY, 550, 25, "src/sprites/Tiles/plataforma.png", true, true));
-			EnemigosBasicos.add(new EnemigoEstatico(3200, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-			EnemigosBasicos.add(new EnemigoEstatico(3710, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-			coordX = 3250;
-			for(int i=0; i<3; i++) {
-				bonuses.add(new Bonus(coordX, coordY - 60, 0, this, player));
-				coordX += 200;
-			}
-			
-			// Plataforma
-			tiles.add(new Tile(3900, coordY, 550, 25, "src/sprites/Tiles/plataforma.png", true, true));
-			EnemigosBasicos.add(new EnemigoEstatico(3900, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-			EnemigosBasicos.add(new EnemigoEstatico(4410, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-			coordX = 3950;
-			for(int i=0; i<3; i++) {
-				bonuses.add(new Bonus(coordX, coordY - 60, 0, this, player));
-				coordX += 200;
-			}
-			
-			// Plataforma
-			coordY = 3250;
-			tiles.add(new Tile(4650, coordY, 700, 50, "src/sprites/Tiles/suelo.png", true, false));
-			tiles.add(new Tile(4650, coordY + 50, 700, FinalY - coordY, "src/sprites/Tiles/arena.png", true, false));
-			
-			// Plataforma
-			coordY = 3075;
-			tiles.add(new Tile(5500, coordY, 800, 25, "src/sprites/Tiles/plataforma.png", true, true));
-			coordX = 5600;
-			for(int i=0; i<4; i++) {
-				bonuses.add(new Bonus(coordX, coordY - 60, 0, this, player));
-				coordX += 200;
-			}
-			
-			// Plataforma
-			coordY = 2900;
-			tiles.add(new Tile(5500, coordY, 800, 25, "src/sprites/Tiles/plataforma.png", true, true));
-			coordX = 5600;
-			for(int i=0; i<4; i++) {
-				bonuses.add(new Bonus(coordX, coordY - 60, 0, this, player));
-				coordX += 200;
-			}
-			
-			// Plataforma
-			coordY = 2750;
-			tiles.add(new Tile(6550, coordY, 1300, 50, "src/sprites/Tiles/suelo.png", true, false));
-			tiles.add(new Tile(6550, coordY + 50, 1300, FinalY - coordY - 50, "src/sprites/Tiles/arena.png", true, false));
-			
-			// Plataformas
-			coordY = 2600;
-			coordX = 7750;
-			for(int i=0;i<5;i++) {
-				tiles.add(new Tile(7450, coordY, 400, 25, "src/sprites/Tiles/plataforma.png", true, true));
-				bonuses.add(new Bonus(coordX, coordY - 60, 0, this, player));
-				EnemigosBasicos.add(new EnemigoEstatico(7650, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-				EnemigosBasicos.add(new EnemigoEstatico(7700, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-				coordY -= 300;
-			}
-			
-			// Plataformas
-			coordY = 2450;
-			coordX = 6960;
-			for(int i=0;i<4;i++) {
-				tiles.add(new Tile(6900, coordY, 400, 25, "src/sprites/Tiles/plataforma.png", true, true));
-				bonuses.add(new Bonus(coordX, coordY - 60, 0, this, player));
-				EnemigosBasicos.add(new EnemigoEstatico(7020, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-				EnemigosBasicos.add(new EnemigoEstatico(7070, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-				coordY -= 300;
-			}
-			
-			// Plataforma
-			coordY = 1225;
-			tiles.add(new Tile(7450, coordY, 400, 25, "src/sprites/Tiles/plataforma.png", true, true));
-			
-			// Plataforma
-			coordY = 1200;
-			coordX = 8105;
-			tiles.add(new Tile(7850, coordY, 1250, 50, "src/sprites/Tiles/suelo.png", true, false));
-			for(int i=0;i<4;i++) {
-				EnemigosBasicos.add(new EnemigoEstatico(coordX, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-				coordX+=50;
-			}
-			
-			coordX = 8805;
-			for(int i=0;i<4;i++) {
-				EnemigosBasicos.add(new EnemigoEstatico(coordX, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-				coordX+=50;
-			}
-			
-			
-			// Plataforma
-			coordY = 1200;
-			tiles.add(new Tile(9400, coordY, 1500, 50, "src/sprites/Tiles/suelo.png", true, false));
-			coordX = 9605;
-			for(int i=0;i<4;i++) {
-				EnemigosBasicos.add(new EnemigoEstatico(coordX, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-				coordX+=50;
-			}
-			coordX = 10505;
-			for(int i=0;i<4;i++) {
-				EnemigosBasicos.add(new EnemigoEstatico(coordX, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-				coordX+=50;
-			}
-			
-			// Plataforma
-			coordY = 1025;
-			tiles.add(new Tile(9800, coordY, 700, 25, "src/sprites/Tiles/plataforma.png", true, true));
-			bonuses.add(new Bonus(10130, coordY - 100, 2, this, player));
-			
-			// Plataforma
-			coordY = 1200;
-			tiles.add(new Tile(PixelCoord(224), coordY, 2150, 50, "src/sprites/Tiles/suelo.png", true, false));
-			bonuses.add(new Bonus(PixelCoord(225), coordY - 100, 3, this, player));
-			coordX = PixelCoord(228) + 5;
-			coordX = PixelCoord(244) + 5;
-			for(int i=0;i<5;i++) {
-				EnemigosBasicos.add(new EnemigoEstatico(coordX, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-				coordX += 50;
-			}
-			
-			// Plataforma
-			coordY = 1025;
-			tiles.add(new Tile(PixelCoord(229), coordY, 350, 25, "src/sprites/Tiles/plataforma.png", true, true));
-			EnemigosBasicos.add(new EnemigoEstatico(PixelCoord(232) + 5, coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-			tiles.add(new Tile(PixelCoord(257), coordY, 350, 25, "src/sprites/Tiles/plataforma.png", true, true));
-			EnemigosBasicos.add(new EnemigoEstatico(PixelCoord(260), coordY - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
-						
-			break;
-			
-		// LEVEL 3
-		case 3:
-			
-			
-			
-			break;
-		
-		// LEVEL 4
-		case 4:
-			
-			break;
-		
-		// LEVEL 5
-		case 5:
-			
-			break;
-			
-		// LEVEL 6
-		case 6:
-			
-			break;
-		}
-		
+		balas.add(new Balas(x, y, 20, height, velocidad, direccion, true));
+		GameMain.reproducirSonido("src/Sonidos/disparoHeavy.wav");
 	}
 	
-	public void GeneracionEventosNivel(int nivel, Player player) {
+	public void disparoBoss(int x, int y, int direccion, Player jugador) {
+		int height = 30;
+		int width = 30;
 		
-		switch(nivel) {
-		case 1:
-			
-			if(player.x >= 400 && EnemigosGenerados == 0) {
-				EnemigosBasicos.add(new EnemigoMovil(PixelCoord(20), PixelCoord(22), player, 0, this));
-				EnemigosGenerados++;
-			}
-			
-			if(player.x >= 2400 && EnemigosGenerados == 1) {
-				EnemigosBasicos.add(new EnemigoMovil(2900, PixelCoord(22), player, 0, this));
-				EnemigosGenerados++;
-			}
-			
-			if(player.x >= 3500 && EnemigosGenerados == 2) {
-				EnemigosBasicos.add(new EnemigoMovil(4000, PixelCoord(16), player, 0, this));
-				EnemigosBasicos.add(new EnemigoMovil(4200, PixelCoord(20), player, 2, this));
-				EnemigosGenerados++;
-			}
-			
-			if(player.x >= 4500 && EnemigosGenerados == 3) {
-				EnemigosBasicos.add(new EnemigoMovil(5100, PixelCoord(14), player, 1, this));
-				EnemigosGenerados++;
-			}
-			
-			if(player.x >= 6000 && !bossSpawn) {
-				bosses.add(new Boss1(6500, PixelCoord(16), this, player));
-				bossSpawn = true;
-				EnemigosGenerados++;
-			}
-			
-			if (!bosses.isEmpty()) {
-			    // Mientras el boss esté vivo, la puerta se mantiene
-			    if (!tiles.contains(puertaFinal)) {
-			        tiles.add(puertaFinal);
-			    }
-			} else {
-			    // Cuando el boss muere, eliminas la puerta una sola vez
-			    tiles.remove(puertaFinal);
-			}
-			
-			break;
-			
-		case 2:
-			
-			if(player.x >= 900 && EnemigosGenerados == 0) {
-				EnemigosBasicos.add(new EnemigoMovil(PixelCoord(28), PixelCoord(66), player, 0, this));
-				EnemigosBasicos.add(new EnemigoMovil(PixelCoord(42), PixelCoord(66), player, 3, this));
-				EnemigosGenerados++;
-			}
-			
-			if(player.x >= 4500 && EnemigosGenerados == 1) {
-				EnemigosBasicos.add(new EnemigoMovil(PixelCoord(103), PixelCoord(63), player, 1, this));
-				EnemigosBasicos.add(new EnemigoMovil(PixelCoord(104), PixelCoord(63), player, 2, this));
-				EnemigosGenerados++;
-			}
-			
-			if(player.x >= 5550 && EnemigosGenerados == 2) {
-				EnemigosBasicos.add(new EnemigoMovil(PixelCoord(123), PixelCoord(58), player, 3, this));
-				EnemigosGenerados++;
-			}
-			
-			if(player.x >= 6450 && EnemigosGenerados == 3) {
-				bosses.add(new Boss1(PixelCoord(145), PixelCoord(52), this, player));
-				EnemigosGenerados++;
-			}
-			
-			if(player.x >= 7850 && EnemigosGenerados == 4) {
-				EnemigosBasicos.add(new EnemigoMovil(PixelCoord(177), PixelCoord(22), player, 2, this));
-				EnemigosBasicos.add(new EnemigoMovil(PixelCoord(178), PixelCoord(22), player, 2, this));
-				EnemigosGenerados++;
-			}
-			
-			if(player.x >= 9350 && EnemigosGenerados == 5) {
-				EnemigosBasicos.add(new EnemigoMovil(PixelCoord(197), PixelCoord(22), player, 0, this));
-				EnemigosBasicos.add(new EnemigoMovil(PixelCoord(198), PixelCoord(22), player, 1, this));
-				EnemigosBasicos.add(new EnemigoMovil(PixelCoord(198), PixelCoord(18), player, 3, this));
-				EnemigosGenerados++;
-			}
-			
-			if(player.x >= 11300 && !bossSpawn) {
-				tiles.add(new Tile(PixelCoord(224), 0, PixelCoord(1), PixelCoord(24), "src/sprites/Tiles/arena.png", true, false));
-				bosses.add(new Boss2(PixelCoord(246), PixelCoord(19), this, player));
-				bossSpawn = true;
-				EnemigosGenerados++;
-			}
-			
-			if (!bosses.isEmpty()) {
-			    if (!tiles.contains(puertaFinal)) {
-			        tiles.add(puertaFinal);
-			    }
-			} else {
-			    tiles.remove(puertaFinal);
-			}
-			
-			break;
-			
-		case 3:
-			
-			break;
-			
-		case 4:
-			
-			break;
-			
-		case 5:
-			
-			break;
-			
-		case 6:
-			
-			break;
-		}
-		
+		morteros.add(new BalaMortero(x, y, width, height, direccion, jugador));
+		GameMain.reproducirSonido("src/Sonidos/disparoHeavy.wav");
 	}
 	
 	public Image NivelToFondo(int nivel) {
@@ -1093,36 +756,52 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	    return new ImageIcon("src/sprites/rangos/" + letra + "rank.png").getImage();
 	}
 	
+	// Ultimo Frame
+	
+	public BufferedImage capturarFrame() {
+	    BufferedImage imagen = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+	    Graphics2D g2 = imagen.createGraphics();
+	    paint(g2); // "pinta" el panel en el BufferedImage
+	    g2.dispose();
+	    return imagen;
+	}
+
+	
 	// ----------- ACTION LISTENER
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_A)
-			player.leftPressed = true;
-		if (e.getKeyCode() == KeyEvent.VK_D)
-			player.rightPressed = true;
-		if (e.getKeyCode() == KeyEvent.VK_SPACE)
-			player.spacePressed = true;
-		if(e.getKeyCode() == KeyEvent.VK_S)
-			player.downPressed = true;
-		if (e.getKeyCode() == KeyEvent.VK_SHIFT)
-			player.disparo = true;
+		if(player != null) {
+			if (e.getKeyCode() == KeyEvent.VK_A)
+				player.leftPressed = true;
+			if (e.getKeyCode() == KeyEvent.VK_D)
+				player.rightPressed = true;
+			if (e.getKeyCode() == KeyEvent.VK_SPACE)
+				player.spacePressed = true;
+			if(e.getKeyCode() == KeyEvent.VK_S)
+				player.downPressed = true;
+			if (e.getKeyCode() == KeyEvent.VK_SHIFT)
+				player.disparo = true;
+			}
 		}
+		
+		
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_A)
-			player.leftPressed = false;
-		if (e.getKeyCode() == KeyEvent.VK_D)
-			player.rightPressed = false;
-		if (e.getKeyCode() == KeyEvent.VK_SPACE)
-			player.spacePressed = false;
-		if(e.getKeyCode() == KeyEvent.VK_S)
-			player.downPressed = false;
-		if (e.getKeyCode() == KeyEvent.VK_SHIFT)
-			player.disparo = false;
+		if(player != null) {
+			if (e.getKeyCode() == KeyEvent.VK_A)
+				player.leftPressed = false;
+			if (e.getKeyCode() == KeyEvent.VK_D)
+				player.rightPressed = false;
+			if (e.getKeyCode() == KeyEvent.VK_SPACE)
+				player.spacePressed = false;
+			if(e.getKeyCode() == KeyEvent.VK_S)
+				player.downPressed = false;
+			if (e.getKeyCode() == KeyEvent.VK_SHIFT)
+				player.disparo = false;
+		}
 	}
 
 	@Override
-	public void keyTyped(KeyEvent e) {
-	}
+	public void keyTyped(KeyEvent e) {}
 }

@@ -13,18 +13,22 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
@@ -33,6 +37,8 @@ public class GameMain extends JFrame {
 	private CardLayout cardLayout;
 	private JPanel mainPanel;
 	private GamePanel gamePanel;
+	
+	private BufferedImage ultimoFrame;
 
 	public static Font Pixelart; // Font
 
@@ -56,11 +62,28 @@ public class GameMain extends JFrame {
 		JPanel deathMenuPanel = crearDeathMenu();
 		deathMenuPanel.setLayout(null);
 
+		// Crear menu pausa
+		JPanel pauseMenuPanel = crearMenuPausa();
+		pauseMenuPanel.setLayout(null);
+		
 		// Crear juego
 		gamePanel = new GamePanel();
+		
+		// Vincular tecla Escape para pausar el juego
+		gamePanel.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"), "pausa");
+		gamePanel.getActionMap().put("pausa", new AbstractAction() {
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        gamePanel.pausarJuego();
+		        ultimoFrame = gamePanel.capturarFrame();
+		        cardLayout.show(mainPanel, "Pausa");
+		    }
+		});
+
 
 		mainPanel.add(menuPanel, "Menu");
 		mainPanel.add(gamePanel, "Juego");
+		mainPanel.add(pauseMenuPanel, "Pausa");
 		mainPanel.add(deathMenuPanel, "DeathMenu");
 
 		add(mainPanel);
@@ -72,7 +95,6 @@ public class GameMain extends JFrame {
 		// Cargar imagen de fondo
 		ImageIcon fondoIcon = new ImageIcon("src/resources/portada.png");
 		Image fondo = fondoIcon.getImage();
-		Musica.reproducirMusica("src/Canciones/Menu.wav");
 
 		// Crear panel personalizado
 		JPanel menuPanel = new JPanel(new GridBagLayout()) {
@@ -83,8 +105,6 @@ public class GameMain extends JFrame {
 
 				// Oscurecer fondo con un rectángulo negro semitransparente
 				Graphics2D g2 = (Graphics2D) g.create();
-				g2.setColor(new Color(0, 0, 0));
-				g2.fillRect(0, 0, getWidth(), getHeight());
 				g2.dispose();
 			}
 		};
@@ -94,7 +114,75 @@ public class GameMain extends JFrame {
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new Insets(15, 0, 15, 0);
 
-		JLabel titulo = new JLabel("The Pirate Odyssey");
+		// Botón Jugar
+		JButton startButton = crearBoton("Jugar", 250, 75);
+		gbc.gridy = 0;
+		menuPanel.add(startButton, gbc);
+
+		// Botón niveles
+		JButton nivelButton = crearBoton("Niveles", 250, 75);
+		gbc.gridy = 1;
+		menuPanel.add(nivelButton, gbc);
+
+		// Botón Salir
+		JButton exitButton = crearBoton("Salir", 250, 75);
+		gbc.gridy = 2;
+		menuPanel.add(exitButton, gbc);
+
+		// Eventos de botones
+		startButton.addActionListener(e -> {
+			
+			cardLayout.show(mainPanel, "Juego");
+			gamePanel.requestFocus();
+			gamePanel.requestFocusInWindow();
+			gamePanel.hayCheckpoint = false;
+			gamePanel.nivel = 3;
+			gamePanel.iniciarJuego();
+		});
+
+		exitButton.addActionListener(e -> System.exit(0)); // Salir
+
+		startButton.setBounds(180, 330, 250, 80); // x, y, ancho, alto
+		nivelButton.setBounds(180, 430, 250, 80);
+		exitButton.setBounds(180, 530, 250, 80);
+
+		return menuPanel;
+	}
+	
+	private JPanel crearMenuPausa() {
+
+		// Cargar imagen de fondo
+		if(gamePanel != null) {
+			ultimoFrame = gamePanel.capturarFrame();
+		}
+		Musica.reproducirMusica("src/Canciones/Menu.wav");
+
+		// Crear panel personalizado
+		JPanel menuPanel = new JPanel() {
+		    @Override
+		    protected void paintComponent(Graphics g) {
+		        super.paintComponent(g);
+		        if (ultimoFrame != null) {
+		            g.drawImage(ultimoFrame, 0, 0, getWidth(), getHeight(), this);
+		        } else {
+		            g.setColor(Color.BLACK);
+		            g.fillRect(0, 0, getWidth(), getHeight());
+		        }
+
+		        // Oscurecer un poco para resaltar los botones
+		        Graphics2D g2 = (Graphics2D) g.create();
+		        g2.setColor(new Color(0, 0, 0, 150));
+		        g2.fillRect(0, 0, getWidth(), getHeight());
+		        g2.dispose();
+		    }
+		};
+
+		menuPanel.setOpaque(false);
+
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(15, 0, 15, 0);
+
+		JLabel titulo = new JLabel("Pausa");
 		titulo.setFont(Pixelart.deriveFont(100f));
 		titulo.setForeground(new Color(0xFFC000));
 		titulo.setHorizontalAlignment(SwingConstants.CENTER);
@@ -102,57 +190,60 @@ public class GameMain extends JFrame {
 		menuPanel.add(titulo, gbc);
 
 		// Botón Jugar
-		JButton startButton = crearBoton("Jugar", 250, 75);
+		JButton returnButton = crearBoton("Reaunudar", 250, 75);
 		gbc.gridy = 1;
-		menuPanel.add(startButton, gbc);
+		menuPanel.add(returnButton, gbc);
 
 		// Botón niveles
-		JButton nivelButton = crearBoton("Niveles", 250, 75);
+		JButton MenuButton = crearBoton("Menu", 250, 75);
 		gbc.gridy = 2;
-		menuPanel.add(nivelButton, gbc);
+		menuPanel.add(MenuButton, gbc);
 
-		// Botón Salir
-		JButton exitButton = crearBoton("Salir", 250, 75);
-		gbc.gridy = 3;
-		menuPanel.add(exitButton, gbc);
-
-		// Eventos de botones
-		startButton.addActionListener(e -> {
-			cardLayout.show(mainPanel, "Juego");
-			gamePanel.requestFocus();
-			gamePanel.requestFocusInWindow();
-			gamePanel.nivel = 2;
-			gamePanel.iniciarJuego();
+		returnButton.addActionListener(e -> {
+		    // Volver al juego
+			gamePanel.enPausa = false;
+		    cardLayout.show(mainPanel, "Juego");
+		    gamePanel.requestFocus();
+		    gamePanel.requestFocusInWindow();
 		});
 
-		exitButton.addActionListener(e -> System.exit(0)); // Salir
+		MenuButton.addActionListener(e -> {
+		    // Volver al menú principal
+		    cardLayout.show(mainPanel, "Menu");
+		    Musica.reproducirMusica("src/Canciones/Menu.wav");
+		});
 
 		titulo.setBounds(-110, 150, 1200, 100);
-		startButton.setBounds(350, 300, 250, 80); // x, y, ancho, alto
-		nivelButton.setBounds(350, 400, 250, 80);
-		exitButton.setBounds(350, 500, 250, 80);
+		returnButton.setBounds(365, 300, 250, 80); // x, y, ancho, alto
+		MenuButton.setBounds(365, 400, 250, 80);
 
 		return menuPanel;
 	}
 
 	private JPanel crearDeathMenu() {
-		// Cargar imagen de fondo
-		ImageIcon fondoIcon = new ImageIcon("src/resources/portada.png");
-		Image fondo = fondoIcon.getImage();
+			
+		if(gamePanel != null) {
+			ultimoFrame = gamePanel.capturarFrame();
+		}
 
 		// Crear panel personalizado
-		JPanel deathMenuPanel = new JPanel(new GridBagLayout()) {
+		JPanel deathMenuPanel = new JPanel() {
 			@Override
-			protected void paintComponent(Graphics g) {
-				super.paintComponent(g);
-				g.drawImage(fondo, 0, 0, getWidth(), getHeight(), this);
+		    protected void paintComponent(Graphics g) {
+		        super.paintComponent(g);
+		        if (ultimoFrame != null) {
+		            g.drawImage(ultimoFrame, 0, 0, getWidth(), getHeight(), this);
+		        } else {
+		            g.setColor(Color.BLACK);
+		            g.fillRect(0, 0, getWidth(), getHeight());
+		        }
 
-				// Oscurecer fondo con un rectángulo negro semitransparente
-				Graphics2D g2 = (Graphics2D) g.create();
-				g2.setColor(new Color(0, 0, 0, 150));
-				g2.fillRect(0, 0, getWidth(), getHeight());
-				g2.dispose();
-			}
+		        // Oscurecer un poco para resaltar los botones
+		        Graphics2D g2 = (Graphics2D) g.create();
+		        g2.setColor(new Color(0, 0, 0, 150));
+		        g2.fillRect(0, 0, getWidth(), getHeight());
+		        g2.dispose();
+		    }
 		};
 
 		deathMenuPanel.setOpaque(false);
@@ -185,7 +276,11 @@ public class GameMain extends JFrame {
 			gamePanel.iniciarJuego();
 		});
 
-		exitButton.addActionListener(e -> System.exit(0)); // Salir
+		exitButton.addActionListener(e -> {
+			// Volver al menú principal
+		    cardLayout.show(mainPanel, "Menu");
+		    Musica.reproducirMusica("src/Canciones/Menu.wav");
+		});
 
 		titulo.setBounds(-110, 150, 1200, 100);
 		retryButton.setBounds(350, 300, 250, 80);
@@ -195,7 +290,8 @@ public class GameMain extends JFrame {
 	}
 
 	public void mostrarMenuMuerte() {
-		cardLayout.show(mainPanel, "DeathMenu");
+	    ultimoFrame = gamePanel.capturarFrame();
+	    cardLayout.show(mainPanel, "DeathMenu");
 	}
 
 	public static JButton crearBoton(String texto, int ancho, int alto) {

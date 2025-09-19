@@ -29,6 +29,7 @@ public class Player {
 	public int vida = max_vida;
 	private boolean inmunidad = false;
 	private long LastHitTime;
+	private long frameEspera = 0;
 	
 	// Frenesi
 	private long LastFrenesi;
@@ -136,7 +137,6 @@ public class Player {
 			// Valores default
 			speed = 12;
 			delayDisparo = 500;
-			salto = -20;
 	    }
 
 		// Después de un tiempito se le va la inmunidad
@@ -169,9 +169,15 @@ public class Player {
 
 	private void morir() {
 		// Mostrar el menú de muerte
+		
+		if(panel.hayCheckpoint) {
+			panel.C_segundos = panel.segundos;
+			panel.C_minutos = panel.minutos;
+		}
+		
 		GameMain gameMain = (GameMain) SwingUtilities.getWindowAncestor(panel);
 		gameMain.mostrarMenuMuerte();
-
+		
 		// Reiniciar el jugador después de morir
 		SwingUtilities.invokeLater(() -> {
 			this.x = 200; // Coordenada inicial X
@@ -182,6 +188,7 @@ public class Player {
 			this.inmunidad = false;
 			this.tocandoPiso = false;
 		});
+		
 	}
 
 	// Disparar (un toque obvio)
@@ -195,9 +202,8 @@ public class Player {
 	}
 	
 	public void frenesi() {
-		speed = 16;
+		speed = 17;
 		delayDisparo = 350;
-		salto = -23;
 		LastFrenesi = System.currentTimeMillis();
 	}
 
