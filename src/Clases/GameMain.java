@@ -66,6 +66,9 @@ public class GameMain extends JFrame {
 		JPanel pauseMenuPanel = crearMenuPausa();
 		pauseMenuPanel.setLayout(null);
 		
+		JPanel levelMenuPanel = crearNivelesMenu();
+		levelMenuPanel.setLayout(null);
+		
 		// Crear juego
 		gamePanel = new GamePanel();
 		
@@ -85,6 +88,9 @@ public class GameMain extends JFrame {
 		mainPanel.add(gamePanel, "Juego");
 		mainPanel.add(pauseMenuPanel, "Pausa");
 		mainPanel.add(deathMenuPanel, "DeathMenu");
+		mainPanel.add(crearNivelesMenu(), "Niveles");
+
+		
 
 		add(mainPanel);
 		setVisible(true);
@@ -141,6 +147,12 @@ public class GameMain extends JFrame {
 		});
 
 		exitButton.addActionListener(e -> System.exit(0)); // Salir
+		
+		nivelButton.addActionListener(e -> { // ir hacia niveles
+		    cardLayout.show(mainPanel, "Niveles");
+		});
+
+		
 
 		startButton.setBounds(180, 330, 250, 80); // x, y, ancho, alto
 		nivelButton.setBounds(180, 430, 250, 80);
@@ -219,6 +231,98 @@ public class GameMain extends JFrame {
 
 		return menuPanel;
 	}
+	
+	private JPanel crearNivelesMenu() {
+	    // Panel con fondo personalizado (el mapa)
+	    JPanel nivelesMenuPanel = new JPanel() {
+	    	
+	    	
+	        private Image fondo;
+
+	        {
+	            // Cargar la imagen de fondo del mapa (cambiá la ruta a la tuya)
+	            fondo = new ImageIcon("src/imagenes/mapa.png").getImage();
+	            setLayout(null); // Layout absoluto para ubicar botones manualmente
+	        }
+
+	        @Override
+	        protected void paintComponent(Graphics g) {
+	            super.paintComponent(g);
+	            if (fondo != null) {
+	                // Dibuja el mapa ocupando todo el panel
+	                g.drawImage(fondo, 0, 0, getWidth(), getHeight(), this);
+	            }
+	        }
+	    };
+	    
+	    // === Botón Volver al menú ===
+	    JButton volverButton = GameMain.crearBoton("Volver", 200, 60);
+	    volverButton.setBounds(50, 550, 200, 60);
+	    volverButton.addActionListener(e -> {
+	        cardLayout.show(mainPanel, "Menu");
+	        Musica.reproducirMusica("src/Canciones/Menu.wav");
+	    });
+
+	    // === Botón Isla 1 ===
+	    JButton isla1 = new JButton();
+	    isla1.setBounds(120, 180, 80, 80); // x, y, ancho, alto (posición sobre el mapa)
+	    isla1.setContentAreaFilled(false); // quita el relleno del botón
+	   // isla1.setBorderPainted(false);     // quita el borde
+	    isla1.setFocusPainted(false);      // quita el recuadro de enfoque
+	    isla1.addActionListener(e -> {
+	        cardLayout.show(mainPanel, "Juego");  // cambia a la pantalla de juego
+	        gamePanel.nivel = 1;
+	        gamePanel.iniciarJuego();            // inicia el nivel 1
+	    });
+
+	    // === Botón Isla 2 ===
+	    JButton isla2 = new JButton();
+	    isla2.setBounds(300, 250, 80, 80);
+	    isla2.setContentAreaFilled(false);
+	    // isla2.setBorderPainted(false);
+	    isla2.setFocusPainted(false);
+	    isla2.addActionListener(e -> {
+	        cardLayout.show(mainPanel, "Juego");
+	        gamePanel.nivel = 2;
+	        gamePanel.iniciarJuego();
+	        
+	        
+	    });
+
+	    // === Botón Isla 3 ===
+	    JButton isla3 = new JButton();
+	    isla3.setBounds(500, 320, 80, 80);
+	    isla3.setContentAreaFilled(false);
+	    //isla3.setBorderPainted(false);
+	    isla3.setFocusPainted(false);
+	    isla3.addActionListener(e -> {
+	        cardLayout.show(mainPanel, "Juego");
+	        gamePanel.nivel = 3;
+	        gamePanel.iniciarJuego();
+	    });
+
+	    // === Botón Isla 4 ===
+	    JButton isla4 = new JButton();
+	    isla4.setBounds(700, 400, 80, 80);
+	    isla4.setContentAreaFilled(false);
+	    //isla4.setBorderPainted(false);
+	    isla4.setFocusPainted(false);
+	    isla4.addActionListener(e -> {
+	        cardLayout.show(mainPanel, "Juego");
+	        gamePanel.nivel = 4;
+	        gamePanel.iniciarJuego();
+	    });
+
+	    // Agregar botones al panel (encima del mapa)
+	    nivelesMenuPanel.add(isla1);
+	    nivelesMenuPanel.add(isla2);
+	    nivelesMenuPanel.add(isla3);
+	    nivelesMenuPanel.add(isla4);
+	    nivelesMenuPanel.add(volverButton);
+
+	    return nivelesMenuPanel;
+	}
+
 
 	private JPanel crearDeathMenu() {
 			

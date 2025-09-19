@@ -675,7 +675,7 @@ public void GeneracionEventosNivel(int nivel, Player player, GamePanel panel) {
 			
 			if(player.x >= 900 && panel.SpawnEnemigos[0] == false) {
 				panel.EnemigosBasicos.add(new EnemigoMovil(PixelCoord(28), PixelCoord(66), player, 0, panel));
-				panel.EnemigosBasicos.add(new EnemigoMovil(PixelCoord(42), PixelCoord(66), player, 3, panel));
+				panel.EnemigosBasicos.add(new EnemigoMovil(PixelCoord(44), PixelCoord(66), player, 3, panel));
 				panel.SpawnEnemigos[0] = true;
 			}
 			

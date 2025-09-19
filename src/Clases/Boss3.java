@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Boss3 extends Boss{
 	
 	private long LastAttackTime = 0;
-	private int delayAtaque = 2000;
+	private int delayAtaque = 1500;
 	private int direccion = -1;
 	
 	private int dy;
@@ -14,7 +14,7 @@ public class Boss3 extends Boss{
 	
 	public Boss3(int startX, int startY, GamePanel panel, Player player) {
 		super(startX, startY, 80, 80, 20, panel, player);
-		monedas = 25;
+		monedas = 25; 
 	}
 	
 	@Override
