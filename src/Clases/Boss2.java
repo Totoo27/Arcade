@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 public class Boss2 extends Boss {
 
-	private int direccion = -1;
 	private int velocidad = 18;
 	private int dx = 0;
 	private int dy;

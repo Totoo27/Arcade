@@ -6,7 +6,6 @@ public class Boss3 extends Boss{
 	
 	private long LastAttackTime = 0;
 	private int delayAtaque = 1500;
-	private int direccion = -1;
 	
 	private int dy;
 	private boolean tocandoPiso = false;

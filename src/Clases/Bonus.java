@@ -109,7 +109,7 @@ public class Bonus {
 		case 4:
 			panel.SpawnEnemigos[0] = true;
 			panel.IntroTime = System.currentTimeMillis();
-			GameMain.reproducirSonido("src/Sonidos/checkpoint.wav");
+			GameMain.reproducirSonido("src/Sonidos/key.wav");
 			break;
 		}
 	}

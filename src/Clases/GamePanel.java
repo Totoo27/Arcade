@@ -183,11 +183,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		g.setColor(new Color(0,0,0,100));
 		g.fillRect(0, 0, getWidth(), getHeight());
 
-		if (player != null) {
-
-			// Sprite Jugador
-
-		}
+		
 
 		// Dibujar Tiles
 		for (Tile tile : tiles) {
@@ -224,8 +220,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 					);
 		}
 		
-
-		
 		for (BalaMortero bala : morteros) {
 			g.drawImage(
 					bala.getSprite(),
@@ -259,10 +253,63 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			}
 			
 			
+			
+			
 			if (enemigo instanceof EnemigoMovil) {
 		        ((EnemigoMovil) enemigo).dibujarHP(g);
 		    }
 			
+		}
+		
+		for(Boss boss : bosses) {
+			if(boss.direccion < 0) {
+				g.drawImage(
+						boss.getSprite(),
+						boss.x - cameraX,
+						boss.y - cameraY,
+						boss.width,
+						boss.height,
+						this
+						);
+			} else {
+				g.drawImage(
+						boss.getSprite(),
+						boss.x - cameraX + boss.width,
+						boss.y - cameraY,
+						-boss.width,
+						boss.height,
+						this
+						);
+			}
+			boss.dibujarHP(g);
+		}
+		
+		
+		
+		if (player != null) {
+			if(player.vida>0) {
+				if(player.direccion > 0) {
+					g.drawImage(
+							player.getSprite(),
+							player.x - cameraX,
+							player.y - cameraY,
+							player.width + 11,
+							player.height,
+							this
+							);
+				} else {
+					g.drawImage(
+							player.getSprite(),
+							player.x - cameraX + player.width,
+							player.y - cameraY,
+							-11 -player.width,
+							player.height,
+							this
+							);
+				}
+			}
+			
+
 		}
 		
 		if(FinalBoss) {
@@ -389,8 +436,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			for (Boss boss : bosses) {
 				g.setColor(new Color(255, 0, 0, 125));
 				g.fillRect(boss.x - cameraX, boss.y - cameraY, boss.width, boss.height);
-				
-				boss.dibujarHP(g);
 			}
 			
 			for (Balas bala : balas) {
@@ -821,9 +866,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	
 	public void disparoEnemigo(int x, int y, int direccion) {
 		int velocidad = 30;
-		int height = 15;
+		int height = 20;
 
-		balas.add(new Balas(x, y, BalaJugWidth, height, velocidad, direccion, true));
+		balas.add(new Balas(x, y, BalaJugWidth+5, height, velocidad, direccion, true));
 		GameMain.reproducirSonido("src/Sonidos/disparo.wav");
 	}
 	

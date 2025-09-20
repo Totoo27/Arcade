@@ -1,8 +1,10 @@
 package Clases;
 
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
+import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
 public class Player {
@@ -49,6 +51,8 @@ public class Player {
 	public boolean disparo = false;
 	public boolean tocandoPiso = false;
 	public boolean ctrlPressed = false;
+	
+	private Image sprite = new ImageIcon("src/sprites/jugador.png").getImage();
 
 
 	public Player(int startX, int startY, GamePanel panel) {
@@ -230,7 +234,7 @@ public class Player {
 	private void Disparar() {
 
 		if (System.currentTimeMillis() >= LastAttackTime + delayDisparo) {
-			panel.disparoJugador(x + margenDisparo, y + height / 3, direccion);
+			panel.disparoJugador(x + margenDisparo, y + height / 3 + 8, direccion);
 			LastAttackTime = System.currentTimeMillis();
 		}
 
@@ -271,6 +275,10 @@ public class Player {
 
 	public Rectangle getBounds() {
 	    return new Rectangle(x, y, width, height);
+	}
+	
+	public Image getSprite() {
+		return sprite;
 	}
 
 

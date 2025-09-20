@@ -33,8 +33,10 @@ public class Boss1 extends Boss {
 		if(!atacando) {
 			if (player.x < x) {
 				dx = -velocidad;
+				direccion = -1;
 			} else if (player.x > x) {
 				dx = velocidad;
+				direccion = 1;
 			}
 			
 			// Saltar si el jugador está cerca

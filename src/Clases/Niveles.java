@@ -933,6 +933,7 @@ public void GeneracionEventosNivel(int nivel, Player player, GamePanel panel) {
 			}
 			
 			if(player.x <= PixelCoord(168) && player.y >= PixelCoord(42) && !panel.SpawnEnemigos[4]) {
+				panel.EnemigosBasicos.clear();
 				Musica.reproducirMusica("src/Canciones/Final.wav");
 				panel.FinalBoss = true;
 				panel.SpawnEnemigos[4] = true;

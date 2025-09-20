@@ -22,6 +22,7 @@ public abstract class Boss {
 	
 	private int probBotiquin = 20;
 	private Random rand = new Random();
+	public int direccion = -1;
 	
 	// HealthBar
 	private int barraAnchoMax = 80; 
