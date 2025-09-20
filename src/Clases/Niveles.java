@@ -607,22 +607,137 @@ public class Niveles {
 		
 		// LEVEL 4
 		case 4:
-
-			player.y = PixelCoord(20);
-			panel.FinalX = PixelCoord(60);
-			panel.tiles.add(new Tile(0, PixelCoord(21), PixelCoord(200), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false));
-			panel.bosses.add(new Boss3(PixelCoord(30), PixelCoord(18), panel, player));
+			Musica.reproducirMusica("src/Canciones/clair_de_lune.wav");
+			panel.puertaFinal = new Tile(PixelCoord(196), PixelCoord(25), PixelCoord(4), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false);
+			panel.tiles.add(panel.puertaFinal);
 			
-			break;
-		
-		// LEVEL 5
-		case 5:
+			panel.FinalX = PixelCoord(201);
+			//panel.FinalY = PixelCoord(30);
 			
-			break;
+			//player.y = PixelCoord(15);
+			//player.x = PixelCoord(2);
 			
-		// LEVEL 6
-		case 6:
+			player.y = PixelCoord(47);
+			player.x = PixelCoord(189);
+			panel.FinalY = PixelCoord(60);
 			
+			// Plataforma
+			panel.tiles.add(new Tile(0, PixelCoord(17), PixelCoord(24), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false));
+			
+			// Plataforma
+			panel.tiles.add(new Tile(PixelCoord(31), PixelCoord(13) + 25, PixelCoord(5), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false));
+			panel.tiles.add(new Tile(PixelCoord(31), PixelCoord(17), PixelCoord(5), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false));
+			coordX = PixelCoord(31) + 5;
+			for(int i = 0; i<4; i++) {
+				panel.EnemigosBasicos.add(new EnemigoEstatico(coordX, PixelCoord(13) - 15, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
+				coordX += 50;
+			}
+			
+			// Plataforma
+			panel.EnemigosBasicos.add(new EnemigoCanon(PixelCoord(45), PixelCoord(15), panel, -1, player, PixelCoord(18)));
+			panel.EnemigosBasicos.add(new EnemigoCanon(PixelCoord(47), PixelCoord(13), panel, 1, player, PixelCoord(26)));
+			panel.EnemigosBasicos.add(new EnemigoCanon(PixelCoord(72), PixelCoord(13), panel, -1, player, PixelCoord(26)));
+			panel.EnemigosBasicos.add(new EnemigoCanon(PixelCoord(79), PixelCoord(12), panel, 1, player, PixelCoord(25)));
+			panel.tiles.add(new Tile(PixelCoord(40), PixelCoord(12), PixelCoord(7), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false));
+			panel.tiles.add(new Tile(PixelCoord(46), PixelCoord(13), PixelCoord(1), PixelCoord(2), "src/sprites/Tiles/madera.png", true, false));
+			panel.tiles.add(new Tile(PixelCoord(46), PixelCoord(15), PixelCoord(28), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false));
+			panel.tiles.add(new Tile(PixelCoord(52), PixelCoord(11), PixelCoord(16), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false));
+			coordX = PixelCoord(52) + 5;
+			for(int i = 0; i<16; i++) {
+				panel.EnemigosBasicos.add(new EnemigoEstatico(coordX, PixelCoord(11) - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
+				coordX += 50;
+			}
+			panel.tiles.add(new Tile(PixelCoord(73), PixelCoord(13), PixelCoord(1), PixelCoord(2), "src/sprites/Tiles/madera.png", true, false));
+			panel.tiles.add(new Tile(PixelCoord(73), PixelCoord(12), PixelCoord(6), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false));
+			coordX = PixelCoord(74) + 5;
+			for(int i = 0; i<4; i++) {
+				panel.EnemigosBasicos.add(new EnemigoEstatico(coordX, PixelCoord(12) - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
+				coordX += PixelCoord(1);
+			}
+			
+			// Plataforma
+			panel.tiles.add(new Tile(PixelCoord(81), PixelCoord(14), PixelCoord(5), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false));
+			coordX = PixelCoord(81) + 5;
+			for(int i = 0; i<2; i++) {
+				panel.EnemigosBasicos.add(new EnemigoEstatico(coordX, PixelCoord(14) - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
+				coordX += PixelCoord(4);
+			}
+			
+			// Plataforma
+			panel.tiles.add(new Tile(PixelCoord(89), PixelCoord(14), PixelCoord(6), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false));
+			coordX = PixelCoord(90) + 5;
+			for(int i = 0; i<5; i++) {
+				panel.EnemigosBasicos.add(new EnemigoEstatico(coordX, PixelCoord(14) - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
+				coordX += PixelCoord(1);
+			}
+			
+			// Plataforma
+			panel.tiles.add(new Tile(PixelCoord(95), PixelCoord(12), PixelCoord(4), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false));
+			coordX = PixelCoord(96) + 5;
+			for(int i = 0; i<3; i++) {
+				panel.EnemigosBasicos.add(new EnemigoEstatico(coordX, PixelCoord(12) - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
+				coordX += PixelCoord(1);
+			}
+						
+			// Plataforma
+			panel.tiles.add(new Tile(PixelCoord(100), PixelCoord(14), PixelCoord(4), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false));	
+			coordX = PixelCoord(100) + 5;
+			for(int i = 0; i<2; i++) {
+				panel.EnemigosBasicos.add(new EnemigoEstatico(coordX, PixelCoord(14) - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
+				coordX += PixelCoord(1);
+			}
+			
+			// Plataforma
+			panel.tiles.add(new Tile(PixelCoord(109), PixelCoord(25), PixelCoord(87), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false));
+			coordX = PixelCoord(109) + 5;
+			for(int i = 0; i<2; i++) {
+				panel.EnemigosBasicos.add(new EnemigoEstatico(coordX, PixelCoord(25) - 40, 40, 40, "src/sprites/Obstaculos/pincho.png")); // Pincho
+				coordX += PixelCoord(1);
+			}
+			coordX = PixelCoord(120);
+			coordY = PixelCoord(22);
+			for(int i = 0; i<6 ; i++) {
+				panel.tiles.add(new Tile(coordX, coordY, PixelCoord(5), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false));
+				coordX += PixelCoord(5);
+				coordY -= PixelCoord(2);
+			}
+			coordY = PixelCoord(11);
+			for(int i = 0; i<4 ; i++) {
+				panel.EnemigosBasicos.add(new EnemigoCanon(PixelCoord(159), coordY, panel, -1, player, PixelCoord(44)));
+				coordY += PixelCoord(4);
+			}
+			panel.tiles.add(new Tile(PixelCoord(150), PixelCoord(10), PixelCoord(14), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false));
+			
+			// Plataforma Caja
+			panel.tiles.add(new Tile(PixelCoord(160), PixelCoord(1), PixelCoord(41), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false));
+			panel.tiles.add(new Tile(PixelCoord(200), PixelCoord(2), PixelCoord(1), PixelCoord(47), "src/sprites/Tiles/madera.png", true, false));
+			panel.tiles.add(new Tile(PixelCoord(160), PixelCoord(2), PixelCoord(1), PixelCoord(5), "src/sprites/Tiles/madera.png", true, false));
+			panel.tiles.add(new Tile(PixelCoord(160), PixelCoord(11), PixelCoord(1), PixelCoord(14), "src/sprites/Tiles/madera.png", true, false));
+			
+			// Plataformas
+			panel.tiles.add(new Tile(PixelCoord(164), PixelCoord(22) - 25, PixelCoord(4), 25, "src/sprites/Tiles/plataforma.png", true, true));
+			
+			panel.tiles.add(new Tile(PixelCoord(174), PixelCoord(22) - 25, PixelCoord(4), 25, "src/sprites/Tiles/plataforma.png", true, true));
+			
+			panel.tiles.add(new Tile(PixelCoord(183), PixelCoord(22) - 25, PixelCoord(4), 25, "src/sprites/Tiles/plataforma.png", true, true));
+			
+			panel.tiles.add(new Tile(PixelCoord(193), PixelCoord(22) - 25, PixelCoord(4), 25, "src/sprites/Tiles/plataforma.png", true, true));
+			
+			
+			panel.bonuses.add(new Bonus(PixelCoord(162), PixelCoord(8), 3, panel, player));
+			panel.bonuses.add(new Bonus(PixelCoord(180), PixelCoord(22), 4, panel, player));
+			panel.bonuses.add(new Bonus(PixelCoord(189), PixelCoord(47), 3, panel, player));
+			
+			// Post Caja
+			
+			panel.tiles.add(new Tile(PixelCoord(195), PixelCoord(26), PixelCoord(1), PixelCoord(17), "src/sprites/Tiles/madera.png", true, false));
+			panel.tiles.add(new Tile(PixelCoord(188), PixelCoord(49), PixelCoord(13), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false));
+			
+			coordX = PixelCoord(150);
+			for(int i=0; i<5; i++) {
+				panel.tiles.add(new Tile(coordX, PixelCoord(58), PixelCoord(5), 25, "src/sprites/Tiles/plataforma.png", true, true));
+				coordX += PixelCoord(8);
+			}
 			break;
 		}
 		
@@ -795,15 +910,33 @@ public void GeneracionEventosNivel(int nivel, Player player, GamePanel panel) {
 			break;
 			
 		case 4:
+			if(panel.SpawnEnemigos[0] && !panel.SpawnEnemigos[1]) {
+				panel.intro = true;
+				panel.SpawnEnemigos[1] = true;
+			}
 			
-			break;
+			if(panel.bosses.size() == 2 && !panel.SpawnEnemigos[2] && panel.SpawnEnemigos[1]) {
+				panel.bosses.add(new Boss2(PixelCoord(180), PixelCoord(6), panel, player));
+				panel.SpawnEnemigos[2] = true;
+			}
 			
-		case 5:
+			if (!panel.bosses.isEmpty()) {
+			    if (!panel.tiles.contains(panel.puertaFinal)) {
+			    	panel.tiles.add(panel.puertaFinal);
+			    }
+			} else if(panel.bosses.isEmpty() && panel.SpawnEnemigos[2] && !panel.SpawnEnemigos[3]) {
+				panel.tiles.remove(panel.puertaFinal);
+				panel.FinalY = PixelCoord(60);
+				panel.EnemigosBasicos.clear();
+				panel.SpawnEnemigos[3] = true;
+				Musica.detenerMusica();
+			}
 			
-			break;
-			
-		case 6:
-			
+			if(player.x <= PixelCoord(168) && player.y >= PixelCoord(42) && !panel.SpawnEnemigos[4]) {
+				Musica.reproducirMusica("src/Canciones/Final.wav");
+				panel.FinalBoss = true;
+				panel.SpawnEnemigos[4] = true;
+			}
 			break;
 		}
 		

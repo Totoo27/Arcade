@@ -110,6 +110,13 @@ public class Boss2 extends Boss {
 		ataque = true;
 		width = 90;
 		height = 90;
+		double prob = Math.random();
+		if(prob < 0.5) {
+			GameMain.reproducirSonido("src/Sonidos/gordo1.wav");
+		} else {
+			GameMain.reproducirSonido("src/Sonidos/gordo2.wav");
+		}
+		
 	}
 	
 }

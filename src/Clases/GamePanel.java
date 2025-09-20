@@ -73,6 +73,17 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	public boolean bossSpawn = false;
 	public Tile puertaFinal;
 	public boolean[] SpawnEnemigos = new boolean[10];
+	public boolean intro = false;
+	public long IntroTime;
+	
+	// Kraimer - Boss Final
+	public boolean FinalBoss = false;
+	public int KMax_vida = 50;
+	public int Kvida = KMax_vida;
+	private int barraAnchoMax = 550;
+	private int barraAlto = 30;
+	private long LastKraimerAttack = 0;
+	public int delayAttack = 2500;
 	
 	// GeneracionNiveles
 	private Niveles niveles = new Niveles();
@@ -86,11 +97,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	public int C_segundos = 0;
 	public int C_minutos = 0;
 	private int Restarts = 0;
+	private int C_FinalY = 0;
 	public boolean hayCheckpoint = false;
 	
 	// Enemigos
 	public ArrayList<Enemigo> EnemigosBasicos = new ArrayList<>();
 	public ArrayList<Boss> bosses = new ArrayList<>();
+	public ArrayList<Tentaculo> tentaculos = new ArrayList<>();
 	
 	// Monedas y Bonus
 	public ArrayList<Bonus> bonuses = new ArrayList<>();
@@ -98,7 +111,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	private Random rand = new Random();
 	
 	// Jugador
-	private Player player;
+	public Player player;
 	public int MonedasJug = 0;
 
 
@@ -252,7 +265,20 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			
 		}
 		
-		
+		if(FinalBoss) {
+			
+			g.setColor(Color.YELLOW);
+            g.setFont(GameMain.Pixelart.deriveFont(30f));
+            g.drawString("Kraimer", 485, 30);
+            
+			int barraVida = (int)((Kvida / (double)KMax_vida) * barraAnchoMax);
+	        
+	        g.setColor(Color.BLACK);
+	        g.fillRect(260, 40, barraAnchoMax+8, barraAlto+8);
+
+	        g.setColor(Color.RED);
+	        g.fillRect(268, 48, barraVida - 8, barraAlto - 8);
+		}
 		
 		if(player != null) {
 			// Dibujar vida del jugador
@@ -384,6 +410,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				g.setColor(new Color(255, 0, 255, 125));
 				g.fillRect(bonus.x - cameraX, bonus.y - cameraY, bonus.width, bonus.height);
 			}
+			
+			for(Tentaculo t : tentaculos) {
+				g.setColor(new Color(255, 0, 255, 125));
+				g.fillRect(t.x - cameraX, t.y - cameraY, t.width, t.height);
+			}
 
 		}
 		repaint();
@@ -405,6 +436,19 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		    return; // No actualiza nada mientras esté en pausa
 		}
 
+		if(intro) {
+			intro();
+		}
+		
+		// Ataque Boss Final
+		if(FinalBoss) {
+			ataqueKraimer();
+		}
+		
+		// Muerte Boss Final
+		if(Kvida <= 0) {
+			FinalBoss = false;
+		}
 		
 		// Generacion Enemigos
 		niveles.GeneracionEventosNivel(nivel, player, this);
@@ -427,6 +471,25 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			
 			if(player.x > FinalX) {
 				win = true;
+			}
+		}
+		
+		// Movimiento Tentaculos
+		for(Tentaculo t : tentaculos) {
+			t.move();
+			// Colision con jugador
+			if (t.getBounds().intersects(player.getBounds())) {
+				player.RecibirHit();
+			}
+		}
+		
+		// Desaparicion tentaculos
+		for(int i = 0; i<tentaculos.size(); i++) {
+			Tentaculo t = tentaculos.get(i);
+			
+			if(t.y >= FinalY && t.bajando) {
+				tentaculos.remove(i);
+				i--;
 			}
 		}
 
@@ -532,6 +595,21 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				continue;
 			}
 			
+			for(Tentaculo t : tentaculos) {
+				if (bala.getBounds().intersects(t.getBounds()) && !bala.balaEnemiga) {
+					t.recibirHit();
+					balas.remove(i);
+					impactada = true;
+					break;
+				}
+			}
+
+			if (impactada) {
+				i--;
+				continue;
+			}
+			
+			
 			if (player != null) {
 
 				if (bala.getBounds().intersects(player.getBounds()) && bala.balaEnemiga == true) { 
@@ -570,7 +648,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			}
 			
 			for(Tile tile : tiles) {
-				if(mortero.getBounds().intersects(tile.getBounds())) {
+				if(mortero.getBounds().intersects(tile.getBounds()) && !tile.plataforma && tile.isSolid()) {
 					morteros.remove(i);
 					impactada = true;
 					break;
@@ -645,6 +723,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		continuar.setVisible(false);
 		contadorMonedas.setVisible(true);
 		tiempo.setVisible(true);
+		
+		// Reiniciar kraimer
+		FinalBoss = false;
+		Kvida = KMax_vida;
+		delayAttack = 2500;
 
 		bossSpawn = false;
 		puertaFinal = null;
@@ -663,6 +746,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		EnemigosBasicos.clear();
 		bosses.clear();
 		tiles.clear();
+		tentaculos.clear();
 		
 		// Inicializar Jugador y Estructura del nivel
 		player = new Player(50, 1050, this);
@@ -683,6 +767,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		    MonedasJug = C_monedas;
 		    segundos = C_segundos;
 		    minutos = C_minutos;
+		    FinalY = C_FinalY;
 		    Restarts++;
 		} else {
 		    Arrays.fill(SpawnEnemigos, false);
@@ -690,6 +775,18 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		
 		timer.start();
 		
+	}
+	
+	public void intro() {
+		Musica.detenerMusica();
+		if(System.currentTimeMillis() >= IntroTime + 3000) {
+			Musica.reproducirMusica("src/Canciones/preFinal.wav");
+			intro = false;
+			
+			bosses.add(new Boss1(PixelCoord(180), PixelCoord(16), this, player));
+			bosses.add(new Boss3(PixelCoord(163), PixelCoord(12), this, player));
+			bosses.add(new Boss3(PixelCoord(198), PixelCoord(12), this, player));
+		}
 	}
 	
 	// Checkpoint
@@ -703,6 +800,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		System.arraycopy(SpawnEnemigos, 0, C_SpawnEnemigos, 0, C_SpawnEnemigos.length);
 		C_segundos = segundos;
 		C_minutos = minutos;
+		C_FinalY = FinalY;
 		player.vida = player.max_vida;
 		
 	}
@@ -741,13 +839,37 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		GameMain.reproducirSonido("src/Sonidos/disparoHeavy.wav");
 	}
 	
+	// Final Boss
+	
+	private void ataqueKraimer() {
+		if(System.currentTimeMillis() >= LastKraimerAttack + delayAttack) {
+			
+			double ataque = Math.random();
+			
+			if(ataque < 0.5) {
+				tentaculos.add(new Tentaculo(player.x + player.width / 2 - 60, FinalY, this));
+				
+			} else {
+				disparoBoss(PixelCoord(146), FinalY-50, player.x, player);
+				disparoBoss(PixelCoord(189), FinalY-50, player.x, player);
+				
+				disparoBoss(PixelCoord(146), FinalY-50, player.x + 100, player);
+				disparoBoss(PixelCoord(189), FinalY-50, player.x - 100, player);
+			}
+			LastKraimerAttack = System.currentTimeMillis();
+			
+		}
+	}
+	
 	public Image NivelToFondo(int nivel) {
-		if(nivel == 1 || nivel == 2) {
+		if(nivel == 1) {
 			return new ImageIcon("src/resources/Fondo1.png").getImage();
-		} else if (nivel == 3 || nivel == 4) {
+		} else if (nivel == 2) {
 			return new ImageIcon("src/resources/Fondo1.png").getImage();
+		} else if (nivel == 3){
+			return new ImageIcon("src/resources/Fondo3.png").getImage();
 		} else {
-			return new ImageIcon("src/resources/Fondo1.png").getImage();
+			return new ImageIcon("src/resources/Fondo4.png").getImage();
 		}
 	}
 	

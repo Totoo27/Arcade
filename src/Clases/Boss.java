@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Random;
 
 // Palador
 public abstract class Boss {
@@ -18,6 +19,9 @@ public abstract class Boss {
 	protected Player player;
 	protected GamePanel panel;
 	protected Image sprite;
+	
+	private int probBotiquin = 20;
+	private Random rand = new Random();
 	
 	// HealthBar
 	private int barraAnchoMax = 80; 
@@ -39,6 +43,11 @@ public abstract class Boss {
 	
 	public void recibirGolpe() {
 		vida--;
+		if(panel.nivel == 4 && this instanceof Boss3 == false) {
+			if (rand.nextInt(100) < probBotiquin) {
+				panel.bonuses.add(new Bonus(x + width/2 - 13, y + 10, 1, panel, player));
+			}
+		}
 	}
 	
 	public abstract void move(int gravedad, ArrayList<Tile> tiles);

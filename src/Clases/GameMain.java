@@ -271,6 +271,7 @@ public class GameMain extends JFrame {
 	    isla1.setFocusPainted(false);      // quita el recuadro de enfoque
 	    isla1.addActionListener(e -> {
 	        cardLayout.show(mainPanel, "Juego");  // cambia a la pantalla de juego
+	        gamePanel.hayCheckpoint = false;
 	        gamePanel.nivel = 1;
 	        gamePanel.iniciarJuego();            // inicia el nivel 1
 		    gamePanel.requestFocusInWindow();
@@ -285,6 +286,7 @@ public class GameMain extends JFrame {
 	    isla2.setFocusPainted(false);
 	    isla2.addActionListener(e -> {
 	        cardLayout.show(mainPanel, "Juego");
+	        gamePanel.hayCheckpoint = false;
 	        gamePanel.nivel = 2;
 	        gamePanel.iniciarJuego();
 		    gamePanel.requestFocusInWindow();
@@ -298,6 +300,7 @@ public class GameMain extends JFrame {
 	    isla3.setFocusPainted(false);
 	    isla3.addActionListener(e -> {
 	        cardLayout.show(mainPanel, "Juego");
+	        gamePanel.hayCheckpoint = false;
 	        gamePanel.nivel = 3;
 	        gamePanel.iniciarJuego();
 		    gamePanel.requestFocusInWindow();
@@ -311,6 +314,7 @@ public class GameMain extends JFrame {
 	    isla4.setFocusPainted(false);
 	    isla4.addActionListener(e -> {
 	        cardLayout.show(mainPanel, "Juego");
+	        gamePanel.hayCheckpoint = false;
 	        gamePanel.nivel = 4;
 	        gamePanel.iniciarJuego();
 		    gamePanel.requestFocusInWindow();

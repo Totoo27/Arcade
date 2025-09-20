@@ -248,6 +248,8 @@ public class Player {
 			width = 80;
 			height = 40;
 			y += 40;
+			
+			GameMain.reproducirSonido("src/Sonidos/slide.wav");
 		}
 	}
 	

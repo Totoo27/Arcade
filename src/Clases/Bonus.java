@@ -59,6 +59,12 @@ public class Bonus {
 			this.height = 50;
 			sprite = new ImageIcon("src/sprites/Bonus/checkpoint.png").getImage();
 			break;
+			
+		case 4: // Llave Final
+			this.width = 20;
+			this.height = 50;
+			sprite = new ImageIcon("src/sprites/Bonus/llave.png").getImage();
+			break;
 		}
 	}
 	
@@ -97,6 +103,12 @@ public class Bonus {
 			
 		case 3:
 			panel.checkpoint(x + width /2 - player.width / 2, y);
+			GameMain.reproducirSonido("src/Sonidos/checkpoint.wav");
+			break;
+			
+		case 4:
+			panel.SpawnEnemigos[0] = true;
+			panel.IntroTime = System.currentTimeMillis();
 			GameMain.reproducirSonido("src/Sonidos/checkpoint.wav");
 			break;
 		}
