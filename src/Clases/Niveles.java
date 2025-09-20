@@ -612,14 +612,14 @@ public class Niveles {
 			panel.tiles.add(panel.puertaFinal);
 			
 			panel.FinalX = PixelCoord(201);
-			//panel.FinalY = PixelCoord(30);
+			panel.FinalY = PixelCoord(30);
 			
-			//player.y = PixelCoord(15);
-			//player.x = PixelCoord(2);
+			player.y = PixelCoord(15);
+			player.x = PixelCoord(2);
 			
-			player.y = PixelCoord(47);
-			player.x = PixelCoord(189);
-			panel.FinalY = PixelCoord(60);
+			// Parámetros Rangos
+			panel.P_Monedas = 100;
+			panel.tiempoObjetivo = 200;
 			
 			// Plataforma
 			panel.tiles.add(new Tile(0, PixelCoord(17), PixelCoord(24), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false));

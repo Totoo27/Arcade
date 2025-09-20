@@ -57,7 +57,7 @@ public class EnemigoMovil extends Enemigo {
 		case 2: // rapido
 			
 			velocidad = 5;
-			max_vida = 1;
+			max_vida = 2;
 			vida = max_vida;
 			monedas = 2;
 			

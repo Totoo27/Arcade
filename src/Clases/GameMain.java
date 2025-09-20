@@ -206,9 +206,19 @@ public class GameMain extends JFrame {
 		gbc.gridy = 1;
 		menuPanel.add(returnButton, gbc);
 
+		// Reiniciar Nivel
+		JButton restartButton = crearBoton("Reiniciar", 250, 75);
+		gbc.gridy = 2;
+		menuPanel.add(restartButton, gbc);
+		
+		// Cargar Ultimo Checkpoint
+		JButton checkpointButton = crearBoton("CheckPoint", 250, 75);
+		gbc.gridy = 3;
+		menuPanel.add(checkpointButton, gbc);
+		
 		// Botón niveles
 		JButton MenuButton = crearBoton("Menu", 250, 75);
-		gbc.gridy = 2;
+		gbc.gridy = 4;
 		menuPanel.add(MenuButton, gbc);
 
 		returnButton.addActionListener(e -> {
@@ -218,6 +228,21 @@ public class GameMain extends JFrame {
 		    gamePanel.requestFocus();
 		    gamePanel.requestFocusInWindow();
 		});
+		
+		restartButton.addActionListener(e -> {
+			cardLayout.show(mainPanel, "Juego");
+			gamePanel.requestFocus();
+			gamePanel.requestFocusInWindow();
+			gamePanel.hayCheckpoint = false;
+			gamePanel.iniciarJuego();
+		});
+		
+		checkpointButton.addActionListener(e -> {
+			cardLayout.show(mainPanel, "Juego");
+			gamePanel.requestFocus();
+			gamePanel.requestFocusInWindow();
+			gamePanel.iniciarJuego();
+		});
 
 		MenuButton.addActionListener(e -> {
 		    // Volver al menú principal
@@ -225,9 +250,11 @@ public class GameMain extends JFrame {
 		    Musica.reproducirMusica("src/Canciones/Menu.wav");
 		});
 
-		titulo.setBounds(-110, 150, 1200, 100);
-		returnButton.setBounds(365, 300, 250, 80); // x, y, ancho, alto
-		MenuButton.setBounds(365, 400, 250, 80);
+		titulo.setBounds(-110, 100, 1200, 100);
+		returnButton.setBounds(365, 250, 250, 80); // x, y, ancho, alto
+		restartButton.setBounds(365, 350, 250, 80);
+		checkpointButton.setBounds(365, 450, 250, 80);
+		MenuButton.setBounds(365, 550, 250, 80);
 
 		return menuPanel;
 	}

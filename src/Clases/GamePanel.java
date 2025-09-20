@@ -78,7 +78,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	
 	// Kraimer - Boss Final
 	public boolean FinalBoss = false;
-	public int KMax_vida = 50;
+	public int KMax_vida = 40;
 	public int Kvida = KMax_vida;
 	private int barraAnchoMax = 550;
 	private int barraAlto = 30;
@@ -308,7 +308,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             
             // Mostrar Botones
             
-            continuar.setVisible(true);
+            if(nivel != 4) {
+            	 continuar.setVisible(true);
+            }
             Salir.setVisible(true);
             
             // Fondo Negro
@@ -448,6 +450,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		// Muerte Boss Final
 		if(Kvida <= 0) {
 			FinalBoss = false;
+			win = true;
+			tentaculos.clear();
 		}
 		
 		// Generacion Enemigos
