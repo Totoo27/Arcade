@@ -2,10 +2,15 @@ package Clases;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.lang.Math;
 import java.util.ArrayList;
+
+import javax.swing.ImageIcon;
 
 public class EnemigoMovil extends Enemigo {
 	private int velocidad = 3;
@@ -17,6 +22,11 @@ public class EnemigoMovil extends Enemigo {
 	private boolean disparador = false;
 	
 	private GamePanel panel;
+	
+	// Sprites direccionales
+	private Image spriteRight;
+	private Image spriteLeft;
+	private int spriteScale = 2; // Factor de escala para agrandar sprites
 	
 	// Variables disparador
 	
@@ -30,7 +40,7 @@ public class EnemigoMovil extends Enemigo {
 	private int barraMargenY = 15;
 
 	public EnemigoMovil(int x, int y, Player jugador, int tipoEnemigo, GamePanel panel) {
-		super(x, y, 40, 80, 3, 3, false);
+		super(x, y, 60, 120, 3, 3, false); // Aumentamos el tamaño para sprites escalados
 		this.jugador = jugador;
 		this.panel = panel;
 		
@@ -42,6 +52,7 @@ public class EnemigoMovil extends Enemigo {
 			max_vida = 3;
 			vida = max_vida;
 			monedas = 3;
+			sprite = new ImageIcon("src/sprites/enemigos/esqueleto.png").getImage();
 			
 		break;
 		
@@ -51,6 +62,7 @@ public class EnemigoMovil extends Enemigo {
 			max_vida = 6;
 			vida = max_vida;
 			monedas = 5;
+			sprite = new ImageIcon("src/sprites/enemigos/gordo.png").getImage();
 			
 			break;
 			
@@ -60,6 +72,7 @@ public class EnemigoMovil extends Enemigo {
 			max_vida = 2;
 			vida = max_vida;
 			monedas = 2;
+			sprite = new ImageIcon("src/sprites/enemigos/esqueleto.png").getImage();
 			
 			break;
 			
@@ -70,14 +83,54 @@ public class EnemigoMovil extends Enemigo {
 			vida = max_vida;
 			disparador = true;
 			monedas = 4;
+			sprite = new ImageIcon("src/sprites/enemigos/esqueleto-arma.png").getImage();
 			
 			break;
 		
 		
 		}
 		
+		// Procesar sprites para crear versiones escaladas y reflejadas
+		procesarSprites();
 
 		
+	}
+	
+	private void procesarSprites() {
+		if (sprite != null) {
+			// Crear versión escalada para la derecha
+			spriteRight = escalarImagen(sprite, spriteScale);
+			// Crear versión escalada y reflejada para la izquierda
+			spriteLeft = reflejarImagen(spriteRight);
+		}
+	}
+	
+	private Image escalarImagen(Image imagen, int factor) {
+		int nuevoAncho = imagen.getWidth(null) * factor;
+		int nuevoAlto = imagen.getHeight(null) * factor;
+		
+		BufferedImage imagenEscalada = new BufferedImage(nuevoAncho, nuevoAlto, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2d = imagenEscalada.createGraphics();
+		g2d.drawImage(imagen, 0, 0, nuevoAncho, nuevoAlto, null);
+		g2d.dispose();
+		
+		return imagenEscalada;
+	}
+	
+	private Image reflejarImagen(Image imagen) {
+		int ancho = imagen.getWidth(null);
+		int alto = imagen.getHeight(null);
+		
+		BufferedImage imagenReflejada = new BufferedImage(ancho, alto, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2d = imagenReflejada.createGraphics();
+		
+		AffineTransform transform = AffineTransform.getScaleInstance(-1, 1);
+		transform.translate(-ancho, 0);
+		g2d.setTransform(transform);
+		g2d.drawImage(imagen, 0, 0, null);
+		g2d.dispose();
+		
+		return imagenReflejada;
 	}
 
 	@Override
@@ -169,6 +222,16 @@ public class EnemigoMovil extends Enemigo {
 		
 	public void disparo() {
 		panel.disparoEnemigo(x + margenDisparo, y + height / 3, direccion);		
+	}
+	
+	@Override
+	public Image getSprite() {
+		// Retornar el sprite correcto según la dirección
+		if (direccion == 1) {
+			return spriteRight != null ? spriteRight : sprite;
+		} else {
+			return spriteLeft != null ? spriteLeft : sprite;
+		}
 	}
 	
 	public void dibujarHP(Graphics g) {             
