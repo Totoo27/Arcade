@@ -76,6 +76,11 @@ public class Tentaculo{
 		panel.Kvida--;
 		if(panel.Kvida <= panel.KMax_vida/2) {
 			panel.delayAttack = 1250;
+			if(!panel.enraged) {
+				GameMain.reproducirSonido("src/Sonidos/krakenRage.wav");
+				GameMain.reproducirSonido("src/Sonidos/rage.wav");
+				panel.enraged = true;
+			}
 		}
 	}
 	

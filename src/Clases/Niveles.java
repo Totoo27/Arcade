@@ -619,7 +619,7 @@ public class Niveles {
 			
 			// Parámetros Rangos
 			panel.P_Monedas = 100;
-			panel.tiempoObjetivo = 200;
+			panel.tiempoObjetivo = 180;
 			
 			// Plataforma
 			panel.tiles.add(new Tile(0, PixelCoord(17), PixelCoord(24), PixelCoord(1), "src/sprites/Tiles/madera.png", true, false));
@@ -935,6 +935,7 @@ public void GeneracionEventosNivel(int nivel, Player player, GamePanel panel) {
 			if(player.x <= PixelCoord(168) && player.y >= PixelCoord(42) && !panel.SpawnEnemigos[4]) {
 				panel.EnemigosBasicos.clear();
 				Musica.reproducirMusica("src/Canciones/Final.wav");
+				GameMain.reproducirSonido("src/Sonidos/KrakenDeath.wav");
 				panel.FinalBoss = true;
 				panel.SpawnEnemigos[4] = true;
 			}

@@ -191,12 +191,9 @@ public class Player {
 		if (!inmunidad) {
 			inmunidad = true;
 			vida--;
+			GameMain.reproducirSonido("src/Sonidos/recibirDanioJugador.wav");
 			if (vida <= 0) {
 				vida = 0;
-				leftPressed = false;
-				rightPressed = false;
-				spacePressed = false;
-				disparo = false;
 				morir();
 			}
 			// Reproducir Sonido
@@ -206,14 +203,19 @@ public class Player {
 	}
 
 	private void morir() {
-		// Mostrar el menú de muerte
-		
+
+		leftPressed = false;
+		rightPressed = false;
+		spacePressed = false;
+		disparo = false;
+		GameMain.reproducirSonido("src/Sonidos/playerDeath.wav");
 		if(panel.hayCheckpoint) {
 			panel.C_segundos = panel.segundos;
 			panel.C_minutos = panel.minutos;
 		}
-		
 		panel.timer.stop();
+		
+		// Mostrar el menú de muerte
 		GameMain gameMain = (GameMain) SwingUtilities.getWindowAncestor(panel);
 		gameMain.mostrarMenuMuerte();
 		

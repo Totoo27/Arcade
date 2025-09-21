@@ -84,6 +84,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	private int barraAlto = 30;
 	private long LastKraimerAttack = 0;
 	public int delayAttack = 2500;
+	public boolean enraged = false;
+	public boolean Kdeath = false;
 	
 	// GeneracionNiveles
 	private Niveles niveles = new Niveles();
@@ -232,28 +234,25 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		}
 		
 		for(Enemigo enemigo : EnemigosBasicos) {
-			if(enemigo.direccion < 0) {
-				g.drawImage(
-						enemigo.getSprite(),
-						enemigo.x - cameraX - enemigo.margenX,
-						enemigo.y - cameraY,
-						enemigo.width + enemigo.margenX * 2,
-						enemigo.height,
-						this
-						);
+			if (enemigo.direccion < 0) {
+			    g.drawImage(
+			        enemigo.getSprite(),
+			        enemigo.x - cameraX - enemigo.margenX,
+			        enemigo.y - cameraY,
+			        enemigo.width + enemigo.margenX * 2,
+			        enemigo.height,
+			        this
+			    );
 			} else {
-				g.drawImage(
-						enemigo.getSprite(),
-						enemigo.x - cameraX + enemigo.width + enemigo.margenX * 2,
-						enemigo.y - cameraY,
-						-enemigo.margenX - enemigo.width,
-						enemigo.height,
-						this
-						);
+			    g.drawImage(
+			        enemigo.getSprite(),
+			        enemigo.x - cameraX + enemigo.width + enemigo.margenX,
+			        enemigo.y - cameraY,
+			        -(enemigo.width + enemigo.margenX * 2),
+			        enemigo.height,
+			        this
+			    );
 			}
-			
-			
-			
 			
 			if (enemigo instanceof EnemigoMovil) {
 		        ((EnemigoMovil) enemigo).dibujarHP(g);
@@ -276,7 +275,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 						boss.getSprite(),
 						boss.x - cameraX + boss.width + boss.margenX*2,
 						boss.y - cameraY - boss.margenY,
-						-boss.margenX -boss.width,
+						-(boss.margenX + boss.width),
 						boss.height + boss.margenY,
 						this
 						);
@@ -506,6 +505,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			FinalBoss = false;
 			win = true;
 			tentaculos.clear();
+			if(!Kdeath) {
+				Kdeath = true;
+				GameMain.reproducirSonido("src/Sonidos/KrakenDeath.wav");
+			}
 		}
 		
 		// Generacion Enemigos
@@ -738,6 +741,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				if (rand.nextInt(100) < probBotiquin) {
 					bonuses.add(new Bonus(enemigo.x + enemigo.width/2 - 13, enemigo.y + 10, 1, this, player));
 				}
+				GameMain.reproducirSonido("src/Sonidos/enemyDeath.wav");
 				EnemigosBasicos.remove(i);
 			}
 		}
@@ -755,7 +759,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		        if (boss instanceof Boss1 b1 && b1.ultimoPalazo != null) {
 		            EnemigosBasicos.remove(b1.ultimoPalazo);
 		        }
-		        
+		        GameMain.reproducirSonido("src/Sonidos/bossDeath.wav");
 		        bosses.remove(i);
 		    }
 		}
@@ -786,6 +790,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		FinalBoss = false;
 		Kvida = KMax_vida;
 		delayAttack = 2500;
+		enraged = false;
+		Kdeath = false;
 
 		bossSpawn = false;
 		puertaFinal = null;

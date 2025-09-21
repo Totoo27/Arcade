@@ -112,6 +112,19 @@ public class GameMain extends JFrame {
 				// Oscurecer fondo con un rectángulo negro semitransparente
 				Graphics2D g2 = (Graphics2D) g.create();
 				g2.dispose();
+				
+				g.setColor(new Color(0,0,0,185));
+				g.fillRect(700, 350, 250, 280);
+				
+				g.setFont(Pixelart.deriveFont(38f));
+				g.setColor(Color.YELLOW);
+				g.drawString("Controles", 725, 400);
+				g.setFont(Pixelart.deriveFont(26f));
+				g.setColor(Color.WHITE);
+				g.drawString("Movimiento: ASD", 725, 450);
+				g.drawString("Salto: Espacio", 725, 500);
+				g.drawString("Deslizar: Control", 725, 550);
+				g.drawString("Disparo: Shift", 725, 600);
 			}
 		};
 
@@ -252,8 +265,8 @@ public class GameMain extends JFrame {
 
 		titulo.setBounds(-110, 100, 1200, 100);
 		returnButton.setBounds(365, 250, 250, 80); // x, y, ancho, alto
-		restartButton.setBounds(365, 350, 250, 80);
-		checkpointButton.setBounds(365, 450, 250, 80);
+		checkpointButton.setBounds(365, 350, 250, 80);
+		restartButton.setBounds(365, 450, 250, 80);
 		MenuButton.setBounds(365, 550, 250, 80);
 
 		return menuPanel;

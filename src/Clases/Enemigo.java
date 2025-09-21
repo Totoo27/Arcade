@@ -33,6 +33,7 @@ public abstract class Enemigo {
     
     public void recibirGolpe() {
         vida--;
+        GameMain.reproducirSonido("src/Sonidos/recibirDanioEnemigo.wav");
     }
 
     public Rectangle getBounds() {

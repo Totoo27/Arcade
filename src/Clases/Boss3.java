@@ -65,6 +65,7 @@ public class Boss3 extends Boss{
 	public void ataque() {
 		
 		double prob = Math.random();
+		int margenDisparo;
 
 	    if (prob < 0.4) { // Predict
 	        posJugador = player.x + (player.dx * 15);
@@ -76,11 +77,14 @@ public class Boss3 extends Boss{
 	    
 	    if(posJugador < x) {
 	    	direccion = 1;
+	    	margenDisparo = -40;
+	    	
 	    } else {
 	    	direccion = -1;
+	    	margenDisparo = 5;
 	    }
-
-	    panel.disparoBoss(x + width / 2, y + width / 2, posJugador, player);
+	    
+	    panel.disparoBoss(x + width / 2 + margenDisparo, y + height / 2 - 5, posJugador, player);
 		
 	}
 

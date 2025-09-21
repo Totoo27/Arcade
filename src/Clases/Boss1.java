@@ -143,7 +143,8 @@ public class Boss1 extends Boss {
 	    } else {
 	        margenX = x - 300;
 	    }
-
+	    
+	    GameMain.reproducirSonido("src/Sonidos/palazo.wav");
 	    ultimoPalazo = new EnemigoEstatico(margenX, y + height/2, 300, 20, "src/sprites/Obstaculos/pincho.png");
 	    panel.EnemigosBasicos.add(ultimoPalazo);
 	    tiempoCreacionPalazo = System.currentTimeMillis();

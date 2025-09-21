@@ -48,6 +48,7 @@ public abstract class Boss {
 	
 	public void recibirGolpe() {
 		vida--;
+		GameMain.reproducirSonido("src/Sonidos/recibirDanioEnemigo.wav");
 		if(panel.nivel == 4 && this instanceof Boss3 == false) {
 			if (rand.nextInt(100) < probBotiquin) {
 				panel.bonuses.add(new Bonus(x + width/2 - 13, y + 10, 1, panel, player));
