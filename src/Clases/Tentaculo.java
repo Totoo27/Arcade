@@ -1,6 +1,9 @@
 package Clases;
 
+import java.awt.Image;
 import java.awt.Rectangle;
+
+import javax.swing.ImageIcon;
 
 public class Tentaculo{
 	
@@ -18,6 +21,8 @@ public class Tentaculo{
 	private long FirstAtaque = 0;
 	private int EsperaAtaque = 250;
 	private boolean Botiquin = false;
+	
+	private Image sprite = new ImageIcon("src/sprites/enemigos/tentaculo.png").getImage();
 	
 	public Tentaculo(int startX, int startY, GamePanel panel) {
 		this.x = startX;
@@ -76,6 +81,10 @@ public class Tentaculo{
 	
 	public Rectangle getBounds() {
 		return new Rectangle(x, y, width, height);
+	}
+	
+	public Image getSprite() {
+		return sprite;
 	}
 	
 }

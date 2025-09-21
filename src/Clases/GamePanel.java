@@ -235,18 +235,18 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			if(enemigo.direccion < 0) {
 				g.drawImage(
 						enemigo.getSprite(),
-						enemigo.x - cameraX,
+						enemigo.x - cameraX - enemigo.margenX,
 						enemigo.y - cameraY,
-						enemigo.width,
+						enemigo.width + enemigo.margenX * 2,
 						enemigo.height,
 						this
 						);
 			} else {
 				g.drawImage(
 						enemigo.getSprite(),
-						enemigo.x - cameraX + enemigo.width,
+						enemigo.x - cameraX + enemigo.width + enemigo.margenX * 2,
 						enemigo.y - cameraY,
-						-enemigo.width,
+						-enemigo.margenX - enemigo.width,
 						enemigo.height,
 						this
 						);
@@ -265,26 +265,35 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			if(boss.direccion < 0) {
 				g.drawImage(
 						boss.getSprite(),
-						boss.x - cameraX,
-						boss.y - cameraY,
-						boss.width,
-						boss.height,
+						boss.x - cameraX - boss.margenX,
+						boss.y - cameraY - boss.margenY,
+						boss.width + boss.margenX*2,
+						boss.height + boss.margenY,
 						this
 						);
 			} else {
 				g.drawImage(
 						boss.getSprite(),
-						boss.x - cameraX + boss.width,
-						boss.y - cameraY,
-						-boss.width,
-						boss.height,
+						boss.x - cameraX + boss.width + boss.margenX*2,
+						boss.y - cameraY - boss.margenY,
+						-boss.margenX -boss.width,
+						boss.height + boss.margenY,
 						this
 						);
 			}
 			boss.dibujarHP(g);
 		}
 		
-		
+		for(Tentaculo t : tentaculos) {
+			g.drawImage(
+					t.getSprite(),
+					t.x - cameraX - 30,
+					t.y - cameraY,
+					t.width + 60,
+					t.height,
+					this
+					);
+		}
 		
 		if (player != null) {
 			if(player.vida>0) {

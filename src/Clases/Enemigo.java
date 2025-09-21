@@ -13,7 +13,10 @@ public abstract class Enemigo {
     protected int vida;
     protected int monedas;
     protected boolean estatico;
+    
     protected Image sprite;
+    public int margenX = 0;
+    
     protected int direccion = -1;
 
     public Enemigo(int x, int y, int width, int height, int vida, int monedas, boolean estatico) {

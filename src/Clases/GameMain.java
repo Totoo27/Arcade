@@ -268,7 +268,7 @@ public class GameMain extends JFrame {
 
 	        {
 	            // Cargar la imagen de fondo del mapa (cambiá la ruta a la tuya)
-	            fondo = new ImageIcon("src/imagenes/mapa.png").getImage();
+	            fondo = new ImageIcon("src/resources/fondoMenuNiveles.png").getImage();
 	            setLayout(null); // Layout absoluto para ubicar botones manualmente
 	        }
 
@@ -283,18 +283,18 @@ public class GameMain extends JFrame {
 	    };
 	    
 	    // === Botón Volver al menú ===
-	    JButton volverButton = GameMain.crearBoton("Volver", 200, 60);
-	    volverButton.setBounds(50, 550, 200, 60);
+	    JButton volverButton = GameMain.crearBoton("Volver", 300, 100);
+	    volverButton.setBounds(50, 500, 300, 100);
+	    volverButton.setFont(Pixelart.deriveFont(50f));
 	    volverButton.addActionListener(e -> {
 	        cardLayout.show(mainPanel, "Menu");
 	        Musica.reproducirMusica("src/Canciones/Menu.wav");
 	    });
 
 	    // === Botón Isla 1 ===
-	    JButton isla1 = new JButton();
-	    isla1.setBounds(120, 180, 80, 80); // x, y, ancho, alto (posición sobre el mapa)
+	    JButton isla1 =  crearBoton("1", 80, 80);
+	    isla1.setBounds(300, 50, 80, 80); // x, y, ancho, alto (posición sobre el mapa)
 	    isla1.setContentAreaFilled(false); // quita el relleno del botón
-	   // isla1.setBorderPainted(false);     // quita el borde
 	    isla1.setFocusPainted(false);      // quita el recuadro de enfoque
 	    isla1.addActionListener(e -> {
 	        cardLayout.show(mainPanel, "Juego");  // cambia a la pantalla de juego
@@ -306,8 +306,8 @@ public class GameMain extends JFrame {
 	    });
 
 	    // === Botón Isla 2 ===
-	    JButton isla2 = new JButton();
-	    isla2.setBounds(300, 250, 80, 80);
+	    JButton isla2 =  crearBoton("2", 80, 80);
+	    isla2.setBounds(730, 120, 80, 80);
 	    isla2.setContentAreaFilled(false);
 	    // isla2.setBorderPainted(false);
 	    isla2.setFocusPainted(false);
@@ -320,10 +320,9 @@ public class GameMain extends JFrame {
 	    });
 
 	    // === Botón Isla 3 ===
-	    JButton isla3 = new JButton();
-	    isla3.setBounds(500, 320, 80, 80);
+	    JButton isla3 =  crearBoton("3", 80, 80);
+	    isla3.setBounds(320, 300, 80, 80);
 	    isla3.setContentAreaFilled(false);
-	    //isla3.setBorderPainted(false);
 	    isla3.setFocusPainted(false);
 	    isla3.addActionListener(e -> {
 	        cardLayout.show(mainPanel, "Juego");
@@ -334,10 +333,9 @@ public class GameMain extends JFrame {
 	    });
 
 	    // === Botón Isla 4 ===
-	    JButton isla4 = new JButton();
-	    isla4.setBounds(700, 400, 80, 80);
+	    JButton isla4 =  crearBoton("4", 80, 80);
+	    isla4.setBounds(740, 400, 80, 80);
 	    isla4.setContentAreaFilled(false);
-	    //isla4.setBorderPainted(false);
 	    isla4.setFocusPainted(false);
 	    isla4.addActionListener(e -> {
 	        cardLayout.show(mainPanel, "Juego");

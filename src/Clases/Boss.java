@@ -18,7 +18,11 @@ public abstract class Boss {
     protected int monedas;
 	protected Player player;
 	protected GamePanel panel;
+	
+	// Sprite
 	protected Image sprite;
+	public int margenX;
+	public int margenY;
 	
 	private int probBotiquin = 20;
 	private Random rand = new Random();

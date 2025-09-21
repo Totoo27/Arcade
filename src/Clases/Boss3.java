@@ -2,6 +2,8 @@ package Clases;
 
 import java.util.ArrayList;
 
+import javax.swing.ImageIcon;
+
 public class Boss3 extends Boss{
 	
 	private long LastAttackTime = 0;
@@ -14,6 +16,9 @@ public class Boss3 extends Boss{
 	public Boss3(int startX, int startY, GamePanel panel, Player player) {
 		super(startX, startY, 80, 80, 20, panel, player);
 		monedas = 25; 
+		sprite = new ImageIcon("src/sprites/enemigos/diaz.png").getImage();
+		margenY = 10;
+		margenX = 0;
 	}
 	
 	@Override
@@ -67,6 +72,12 @@ public class Boss3 extends Boss{
 	    	posJugador = player.x - (player.dx * 10);
 	    } else { // Pos del jugador
 	    	 posJugador = player.x;
+	    }
+	    
+	    if(posJugador < x) {
+	    	direccion = 1;
+	    } else {
+	    	direccion = -1;
 	    }
 
 	    panel.disparoBoss(x + width / 2, y + width / 2, posJugador, player);
