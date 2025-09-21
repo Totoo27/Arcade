@@ -57,7 +57,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	public int BalaJugWidth = 15;
 
 	// Hitbox
-	private boolean showHitboxes = true;
+	private boolean showHitboxes = false;
 	
 	// Movimiento Jugador
 	public int cameraX = 0;
@@ -260,29 +260,33 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			
 		}
 		
-		for(Boss boss : bosses) {
-			if(boss.direccion < 0) {
-				g.drawImage(
-						boss.getSprite(),
-						boss.x - cameraX - boss.margenX,
-						boss.y - cameraY - boss.margenY,
-						boss.width + boss.margenX*2,
-						boss.height + boss.margenY,
-						this
-						);
-			} else {
-				g.drawImage(
-						boss.getSprite(),
-						boss.x - cameraX + boss.width + boss.margenX*2,
-						boss.y - cameraY - boss.margenY,
-						-(boss.margenX + boss.width),
-						boss.height + boss.margenY,
-						this
-						);
-			}
-			boss.dibujarHP(g);
+		for (Boss boss : bosses) {
+		    int drawWidth = boss.width + boss.margenX * 2;
+		    int drawHeight = boss.height + boss.margenY;
+
+		    if (boss.direccion < 0) {
+		        g.drawImage(
+		            boss.getSprite(),
+		            boss.x - cameraX - boss.margenX,
+		            boss.y - cameraY - boss.margenY,
+		            drawWidth,
+		            drawHeight,
+		            this
+		        );
+		    } else {
+		        g.drawImage(
+		            boss.getSprite(),
+		            boss.x - cameraX + boss.width + boss.margenX,
+		            boss.y - cameraY - boss.margenY,
+		            -drawWidth,
+		            drawHeight,
+		            this
+		        );
+		    }
+
+		    boss.dibujarHP(g);
 		}
-		
+
 		for(Tentaculo t : tentaculos) {
 			g.drawImage(
 					t.getSprite(),

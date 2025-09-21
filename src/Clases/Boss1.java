@@ -2,6 +2,8 @@ package Clases;
 
 import java.util.ArrayList;
 
+import javax.swing.ImageIcon;
+
 public class Boss1 extends Boss {
 	
 	private int velocidad = 4;
@@ -26,6 +28,8 @@ public class Boss1 extends Boss {
 	public Boss1(int startX, int startY, GamePanel panel, Player player) {
 		super(startX, startY, 60, 120, 12, panel, player);
 		monedas = 20;
+		sprite = new ImageIcon("src/sprites/enemigos/santaCruz.png").getImage();
+		margenX = 60;
 	}
 	
 	@Override
@@ -106,12 +110,16 @@ public class Boss1 extends Boss {
 	    // Borrar ataques después de un tiempo
 	    if (ultimoPalazo != null && System.currentTimeMillis() - tiempoCreacionPalazo > duracionPalazo) {
 	        panel.EnemigosBasicos.remove(ultimoPalazo);
+	        sprite = new ImageIcon("src/sprites/enemigos/santaCruz.png").getImage();
+	        margenX = 60;
 	        ultimoPalazo = null;
 	    }
 	    
 	    if (atacando && ataquesRestantes > 0) {
 	    	if (System.currentTimeMillis() - lastPalazoTime >= delayEntrePalazos) {
 	    		lanzarPalazo();
+	    		sprite = new ImageIcon("src/sprites/enemigos/santaAttack.png").getImage();
+	    		margenX = 20;
 	    		ataquesRestantes--;
 	    		lastPalazoTime = System.currentTimeMillis();
 	    	}
@@ -145,7 +153,7 @@ public class Boss1 extends Boss {
 	    }
 	    
 	    GameMain.reproducirSonido("src/Sonidos/palazo.wav");
-	    ultimoPalazo = new EnemigoEstatico(margenX, y + height/2, 300, 20, "src/sprites/Obstaculos/pincho.png");
+	    ultimoPalazo = new EnemigoEstatico(margenX, y + height/2 + 3, 300, 5, "src/sprites/Obstaculos/palo.png");
 	    panel.EnemigosBasicos.add(ultimoPalazo);
 	    tiempoCreacionPalazo = System.currentTimeMillis();
 	}
