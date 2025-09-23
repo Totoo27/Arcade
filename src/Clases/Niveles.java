@@ -825,6 +825,7 @@ public void GeneracionEventosNivel(int nivel, Player player, GamePanel panel) {
 			
 			if(player.x >= 11300 && !panel.bossSpawn) {
 				panel.tiles.add(new Tile(PixelCoord(224), 0, PixelCoord(1), PixelCoord(24), "src/sprites/Tiles/madera.png", true, false));
+				panel.bosses.clear();
 				panel.bosses.add(new Boss2(PixelCoord(246), PixelCoord(19), panel, player));
 				panel.bossSpawn = true;
 			}

@@ -215,7 +215,7 @@ public class GameMain extends JFrame {
 		menuPanel.add(titulo, gbc);
 
 		// Botón Jugar
-		JButton returnButton = crearBoton("Reaunudar", 250, 75);
+		JButton returnButton = crearBoton("Reanudar", 250, 75);
 		gbc.gridy = 1;
 		menuPanel.add(returnButton, gbc);
 
@@ -321,7 +321,7 @@ public class GameMain extends JFrame {
 	    // === Botón Isla 2 ===
 	    JButton isla2 =  crearBoton("2", 80, 80);
 	    isla2.setBounds(730, 120, 80, 80);
-	    isla2.setContentAreaFilled(false);
+	    //isla2.setContentAreaFilled(false);
 	    // isla2.setBorderPainted(false);
 	    isla2.setFocusPainted(false);
 	    isla2.addActionListener(e -> {
@@ -347,7 +347,7 @@ public class GameMain extends JFrame {
 
 	    // === Botón Isla 4 ===
 	    JButton isla4 =  crearBoton("4", 80, 80);
-	    isla4.setBounds(740, 400, 80, 80);
+	    isla4.setBounds(745, 400, 80, 80);
 	    isla4.setContentAreaFilled(false);
 	    isla4.setFocusPainted(false);
 	    isla4.addActionListener(e -> {
